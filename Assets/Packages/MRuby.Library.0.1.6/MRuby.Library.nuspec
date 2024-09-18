@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>MRuby.Library</id>
+    <version>0.1.6</version>
+    <title>A mruby binding for .Net Core Platform</title>
+    <authors>Little Princess Studio</authors>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/Little-Princess-Studio/mruby-for-dotnet</projectUrl>
+    <description>Package Description</description>
+    <repository type="git" url="https://github.com/Little-Princess-Studio/mruby-for-dotnet" commit="fe9a722bbfe1b6fe4a9d33ab0d372a4ceccf9579" />
+    <dependencies>
+      <group targetFramework="net8.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+    <contentFiles>
+      <files include="any/net8.0/libmruby_x64.dll" buildAction="Content" copyToOutput="true" />
+      <files include="any/netstandard2.1/libmruby_x64.dll" buildAction="Content" copyToOutput="true" />
+      <files include="any/net8.0/libmruby_x64.so" buildAction="Content" copyToOutput="true" />
+      <files include="any/netstandard2.1/libmruby_x64.so" buildAction="Content" copyToOutput="true" />
+      <files include="any/net8.0/libmruby_x64.dylib" buildAction="Content" copyToOutput="true" />
+      <files include="any/netstandard2.1/libmruby_x64.dylib" buildAction="Content" copyToOutput="true" />
+    </contentFiles>
+  </metadata>
+</package>
