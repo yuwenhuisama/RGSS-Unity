@@ -103,8 +103,9 @@ namespace RGSSUnity.RubyClasses
 
             var renderer = spriteObject.AddComponent<SpriteRenderer>();
             renderer.material = new Material(SpriteShader);
-            renderer.enabled = false;
             data.SpriteRenderer = renderer;
+            
+            spriteObject.SetActive(false);
 
             var dataComp = spriteObject.AddComponent<SpriteDataComponent>();
             dataComp.SpriteData = data;

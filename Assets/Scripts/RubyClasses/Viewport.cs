@@ -332,11 +332,12 @@ namespace RGSSUnity.RubyClasses
             var renderer = viewportObject.AddComponent<SpriteRenderer>();
             var viewportDataComp = viewportObject.AddComponent<ViewportDataComponent>();
 
+            renderer.enabled = false;
+
             viewportObject.transform.position = new Vector3(0, 0, 1.0f);
 
-            renderer.material = new Material(Shader.Find("Costum/ViewportShader"));
+            renderer.material = new Material(Shader.Find("Custom/ViewportShader"));
             renderer.sprite = sprite;
-            renderer.enabled = false;
 
             var data = new ViewportData(state)
             {

@@ -110,6 +110,17 @@ class Font
     end
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   TYPE_CHECK_MAP.each do |prop, type|
     define_method(prop) { @handler.send(prop) }
     define_method("#{prop}=") do |val|

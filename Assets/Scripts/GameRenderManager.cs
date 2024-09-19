@@ -80,18 +80,12 @@ namespace RGSSUnity
                 viewport.transform.position = new Vector3(-(viewportTex.width / 2.0f), viewportTex.height / 2.0f, 1);
                 viewport.transform.Translate(new Vector3(-viewportData.Ox, viewportData.Oy, 0));
 
-                var renderers = new List<SpriteRenderer>();
+                var renderers = new List<GameObject>();
 
                 for (int j = 0; j < spriteCnt; ++j)
                 {
                     var sprite = viewport.transform.GetChild(j);
-                    var spriteRenderer = sprite.GetComponent<SpriteRenderer>();
-                    var texture = spriteRenderer.sprite.texture;
-
-                    if (!texture)
-                    {
-                        continue;
-                    }
+                    renderers.Add(sprite.gameObject);
 
                     if (sprite.gameObject.CompareTag("RGSSSprite"))
                     {
@@ -121,9 +115,19 @@ namespace RGSSUnity
                             data.Z);
                         RubyClasses.Plane.Render(data);
                     }
+                    else if (sprite.gameObject.CompareTag("RGSSWindow"))
+                    {
+                        var data = sprite.GetComponent<WindowDataComponent>().WindowData;
 
-                    spriteRenderer.enabled = true;
-                    renderers.Add(spriteRenderer);
+                        sprite.transform.position = new Vector3(
+                            data.X - viewportTex.width / 2.0f,
+                            -data.Y + viewportTex.height / 2.0f,
+                            data.Z);
+                        RubyClasses.Window.Render(data);
+                    }
+
+                    sprite.gameObject.SetActive(true);
+                    renderers.Add(sprite.gameObject);
 
                     // render to viewport texture
                     this.renderCamera.Render();
@@ -131,7 +135,7 @@ namespace RGSSUnity
 
                 foreach (var s in renderers)
                 {
-                    s.enabled = false;
+                    s.SetActive(false);
                 }
 
                 Bitmap.RenderTextureToTexture2D(viewportTex, viewportRenderer.sprite.texture);

@@ -66,6 +66,17 @@ class Viewport
     @handler.rect = rect.handler
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   [:z, :ox, :oy].each do |prop|
     define_method(prop) { @handler.send(prop) }
     define_method("#{prop}=") do |value|

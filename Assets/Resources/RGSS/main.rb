@@ -25,6 +25,7 @@ begin
   require 'bitmap'
   require 'viewport'
   require 'plane'
+  require 'window'
 
   # msgbox("create viewport")
   # viewport = Viewport.new(200, 200, 1024, 1024)
@@ -81,21 +82,30 @@ begin
 
   # Graphics.fadeout(60)
 
-  bitmap = Bitmap.new("Book.png")
+  # bitmap = Bitmap.new("Book.png")
   #bitmap2 = Cache.title1("Castle")
   # bitmap.radial_blur(1,1)
 
-  bitmap2 = Bitmap.new(100,100)
-  bitmap2.blt 0, 0, bitmap, Rect.new(0, 0, 100, 100)
+  # bitmap2 = Bitmap.new(100,100)
+  # bitmap2.blt 0, 0, bitmap, Rect.new(0, 0, 100, 100)
 
-  sprite = Plane.new
-  sprite.bitmap = bitmap2
-  sprite.ox = 50
-  sprite.oy = 50
+  # sprite = Plane.new
+  # sprite.bitmap = bitmap2
+  # sprite.ox = 50
+  # sprite.oy = 50
   #sprite.x = 0
   #sprite.y = 0
-  sprite.zoom_x = 2
-  sprite.zoom_y = 2
+  # sprite.zoom_x = 2
+  # sprite.zoom_y = 2
+
+  window = Window.new(10, 10, 400, 300)
+  window.windowskin = Bitmap.new("Window.png")
+
+  contents = bitmap = Bitmap.new("Book.png")
+  # contents.fill_rect(0, 0, 200, 400, Color::RED)
+  window.ox = 100
+  window.oy = 100
+  window.contents = contents
 
 rescue Exception => e
   str = format_exc_string(e)
@@ -103,10 +113,19 @@ rescue Exception => e
   return
 end
 
+cnt = 0
+
 Unity.on_update = proc do
   # to catch unhandled exceptions and notify native side
   begin
     # sprite.update
+    if cnt % 10 == 0
+      msgbox("cnt", cnt)
+      window.ox = window.ox + 1
+      window.oy = window.oy + 1
+    end
+    cnt += 1
+
     ::Graphics.update
   rescue Exception => e
     str = format_exc_string(e)

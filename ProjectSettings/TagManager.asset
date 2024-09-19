@@ -6,6 +6,7 @@ TagManager:
   tags:
   - RGSSSprite
   - RGSSPlane
+  - RGSSWindow
   layers:
   - Default
   - TransparentFX

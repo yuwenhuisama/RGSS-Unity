@@ -55,6 +55,17 @@ class Tilemap
     @handler.viewport = viewport.handler
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   [:ox, :oy, :visible].each do |prop|
     define_method(prop) { @handler.send(prop) }
     define_method("#{prop}=") { |value| @handler.send("#{prop}=", value) }

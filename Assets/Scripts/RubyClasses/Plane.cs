@@ -75,8 +75,9 @@ namespace RGSSUnity.RubyClasses
 
             var renderer = planeObject.AddComponent<SpriteRenderer>();
             renderer.material = new Material(PlaneShader_);
-            renderer.enabled = false;
             data.SpriteRenderer = renderer;
+            
+            planeObject.SetActive(false);
 
             var dataComp = planeObject.AddComponent<PlaneDataComponent>();
             dataComp.PlaneData = data;

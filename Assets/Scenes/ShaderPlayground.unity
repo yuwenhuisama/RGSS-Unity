@@ -425,6 +425,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!114 &1486635122
 MonoBehaviour:
   m_ObjectHideFlags: 0

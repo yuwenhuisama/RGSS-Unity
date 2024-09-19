@@ -38,6 +38,17 @@ class Rect
     self.x, self.y, self.w, self.h = 0, 0, 0, 0
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   [:x, :y, :w, :h].each do |prop|
     define_method(prop) do
       @handler.send(prop)

@@ -172,6 +172,17 @@ class Bitmap
     @handler.font = font.handler
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   [:width, :height].each do |method|
     define_method(method) do
       @handler.send(method)

@@ -31,7 +31,7 @@ class Plane
   end
 
   def viewport
-    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.viewport
+    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.handler
       return nil
     end
     Viewport.new @handler.viewport
@@ -58,6 +58,17 @@ class Plane
   def tone=(value)
     check_type(value, Tone)
     @handler.tone = value.handler
+  end
+
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
   end
 
   TYPE_CHECK_MAP = {

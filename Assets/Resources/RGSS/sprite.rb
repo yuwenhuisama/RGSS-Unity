@@ -50,7 +50,7 @@ class Sprite
   end
 
   def viewport
-    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.viewport
+    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.handler
       return nil
     end
     Viewport.new @handler.viewport
@@ -104,6 +104,17 @@ class Sprite
     end
 
     @handler.blend_type = blend_type
+  end
+
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
   end
 
   TYPE_CHECK_MAP = {

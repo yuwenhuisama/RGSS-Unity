@@ -1,18 +1,9 @@
-Shader "Custom/ViewportShader"
+Shader "Custom/SpriteMaskShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-
-        _BushOpacity ("Bush Opacity", Range(0, 1)) = 1
-        _BushDepth ("Bush Depth", Range(0, 1)) = 0
-
-        _MixColor ("Color to mixture", Vector) = (0,0,0,0)
-        _Tone ("Tone to mixture", Vector) = (0,0,0,0)
-
-        _FlashColor ("Flash Color", Color) = (1,1,1,1)
-        _FlashProgress ("Flash Progress", Range(0, 1)) = 0
-
+        _Region ("Region", Vector) = (0, 0, 1, 1)
     }
     SubShader
     {
@@ -49,29 +40,15 @@ Shader "Custom/ViewportShader"
             }
 
             sampler2D _MainTex;
+            float4 _Region;
 
-            fixed4 _MixColor;
-            fixed4 _Tone;
-
-            fixed4 _FlashColor;
-            float _FlashProgress;
-
-            const fixed3 lumaF = float3(.299, .587, .114);
-            
             fixed4 frag(v2f i) : SV_Target
             {
+                float4 region = _Region;
+                region.y = 1.0 - region.y - region.w;
+                float2 mask = step(region.xy, i.uv) * step(i.uv, region.xy + region.zw);
                 fixed4 col = tex2D(_MainTex, i.uv);
-
-                // Apply gray
-                float luma = dot(col.rgb, lumaF);
-                col.rgb = lerp(col.rgb, float3(luma, luma, luma), _Tone.w);
-
-                // Apply tone
-                col.rgb += _Tone.rgb;
-
-                // Apply flush effect
-                col.rgba = lerp(col.rgba, _FlashColor.rgba, _FlashProgress);
-                
+                col *= mask.x * mask.y;
                 return col;
             }
             ENDCG

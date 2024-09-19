@@ -33,6 +33,17 @@ class Table
     end
   end
 
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
+  end
+
   [:xsize, :ysize, :zsize].each do |prop|
     define_method(prop) { @handler.send(prop) }
   end

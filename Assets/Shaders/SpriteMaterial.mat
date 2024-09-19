@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SpriteMaterial
-  m_Shader: {fileID: 4800000, guid: dca58e24732ee80418c220a8e3b31200, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0b881a27365da5248857591e4083d079, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -70,6 +70,7 @@ Material:
     - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
     - _MixColor: {r: 0, g: 0, b: 0, a: 0}
     - _OxOy: {r: 0, g: 0, b: 0, a: 0}
+    - _Region: {r: 0, g: 0, b: 0.5, a: 0.5}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _Scale: {r: 5, g: 2.1, b: 0, a: 0}
     - _Tone: {r: 0, g: 0, b: 0, a: 0}

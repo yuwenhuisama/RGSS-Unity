@@ -8,9 +8,12 @@ class Window
 
   attr_reader :handler
 
-  def intialize(x = 0, y = 0, width = 0, height = 0)
+  def initialize(x = 0, y = 0, width = 0, height = 0)
     check_arguments([x, y, width, height], [Integer, Integer, Integer, Integer])
-    @handler = Unity::Window.new(x, y, width, height)
+    @handler = Unity::Window.new_xywh(x, y, width, height, Viewport::DEFAULT_VIEWPORT.handler)
+    self.contents = Window::DEFAULT_CONTENTS_BITMAP
+    self.padding = 24
+    self.padding_bottom = 24
   end
 
   def move(x, y, w, h)
@@ -19,7 +22,7 @@ class Window
   end
 
   def windowskin
-    Bitmap.new(@handler.windowskin)
+    Bitmap.new @handler.windowskin
   end
 
   def windowskin=(bitmap)
@@ -46,12 +49,27 @@ class Window
   end
 
   def viewport
-    Viewport.new(@handler.viewport)
+    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.handler
+      nil
+    else
+      Viewport.new @handler.viewport
+    end
   end
 
   def viewport=(viewport)
     check_arguments([viewport], [Viewport])
     @handler.viewport = viewport.handler
+  end
+
+  def eql?(other)
+    if self == other
+      true
+    end
+    self.handler == other.handler
+  end
+
+  def hash
+    @handler.hash
   end
 
   [:dispose, :disposed?, :update, :open?, :close?].each do |method|
@@ -89,4 +107,6 @@ class Window
       @handler.send("#{prop}=", value)
     end
   end
+
+  DEFAULT_CONTENTS_BITMAP = Bitmap.new(1, 1)
 end
