@@ -83,8 +83,8 @@ namespace RGSSUnity.RubyClasses
     public class WindowData : RubyData
     {
         public WindowSkinData WindowSkinData;
-
         public SpriteRenderer WindowBorderSpriteRenderer;
+        public SpriteRenderer WindowBackgroundTiledSpriteRenderer;
         public SpriteRenderer WindowBackgroundSpriteRenderer;
         public SpriteRenderer ContentsSpriteRenderer;
         public SpriteRenderer CursorSpriteRenderer;
@@ -96,16 +96,17 @@ namespace RGSSUnity.RubyClasses
         public BitmapData ContentsBitmapData;
         public RectData CursorRect;
 
-        public long X;
-        public long Y;
-        public long Z = 100;
-        public long Ox;
-        public long Oy;
-        public long Width;
-
-        public long Height;
+        public int X;
+        public int Y;
+        public int Z = 100;
+        public int Ox;
+        public int Oy;
+        public int Width;
+        public int Height;
+        public int Openness;
 
         public GameObject WindowBorderGameObject;
+        public GameObject WindowBackgroundTiledObject;
         public GameObject WindowBackgroundGameObject;
         public GameObject ContentsGameObject;
         public GameObject CursorGameObject;
@@ -121,7 +122,9 @@ namespace RGSSUnity.RubyClasses
         public bool Active;
         public bool Visible;
 
-        public bool Dirty;
+        public long Opacity;
+        public long ContentOpacity;
+        public long BackOpacity;
 
         public WindowData(RbState state) : base(state)
         {
@@ -132,6 +135,7 @@ namespace RGSSUnity.RubyClasses
     public static class Window
     {
         private static readonly int Region_ = Shader.PropertyToID("_Region");
+        private static readonly int Scale_ = Shader.PropertyToID("_Scale");
         private const float CursorFlashDeltaOpacity = 1.0f / 60.0f;
 
         [RbClassMethod("new_xywh")]
@@ -144,10 +148,10 @@ namespace RGSSUnity.RubyClasses
 
             var windowData = new WindowData(state)
             {
-                X = rx,
-                Y = ry,
-                Width = rw,
-                Height = rh,
+                X = (int)rx,
+                Y = (int)ry,
+                Width = (int)rw,
+                Height = (int)rh,
                 Z = 100,
                 CursorRect = new RectData(state)
                 {
@@ -156,6 +160,10 @@ namespace RGSSUnity.RubyClasses
                 ArrowsVisible = true,
                 Active = true,
                 Visible = true,
+                Opacity = 255,
+                ContentOpacity = 255,
+                BackOpacity = 196,
+                Openness = 255,
             };
 
             var viewportData = viewport.GetRDataObject<ViewportData>();
@@ -170,7 +178,6 @@ namespace RGSSUnity.RubyClasses
 
             var renderer = windowObject.AddComponent<SpriteRenderer>();
             windowData.WindowBackgroundSpriteRenderer = renderer;
-            renderer.sortingOrder = 100;
 
             var borderObject = new GameObject("Border Object");
             borderObject.transform.SetParent(windowObject.transform);
@@ -179,7 +186,15 @@ namespace RGSSUnity.RubyClasses
 
             var borderRenderer = borderObject.AddComponent<SpriteRenderer>();
             windowData.WindowBorderSpriteRenderer = borderRenderer;
-            borderRenderer.sortingOrder = 101;
+
+            var tiledBackgroundObject = new GameObject("Tiled Background Object");
+            tiledBackgroundObject.transform.SetParent(windowObject.transform);
+            tiledBackgroundObject.transform.position = new Vector3(0, 0, 1);
+            windowData.WindowBackgroundTiledObject = tiledBackgroundObject;
+
+            var tiledBackgroundRenderer = tiledBackgroundObject.AddComponent<SpriteRenderer>();
+            tiledBackgroundRenderer.material = new Material(Shader.Find("Custom/TiledBackgroundShader"));
+            windowData.WindowBackgroundTiledSpriteRenderer = tiledBackgroundRenderer;
 
             // end build window basic object
 
@@ -194,7 +209,6 @@ namespace RGSSUnity.RubyClasses
             var contentsRenderer = contentsWindowObject.AddComponent<SpriteRenderer>();
             windowData.ContentsSpriteRenderer = contentsRenderer;
             windowData.ContentsSpriteRenderer.material = new Material(Shader.Find("Custom/SpriteMaskShader"));
-            contentsRenderer.sortingOrder = 102;
 
             var cls = self.ToClassUnchecked();
             var result = cls.NewObjectWithRData(windowData);
@@ -221,6 +235,7 @@ namespace RGSSUnity.RubyClasses
                 windowData.WindowSkinData = null;
                 windowData.WindowBackgroundSpriteRenderer.sprite = null;
                 windowData.WindowBorderSpriteRenderer.sprite = null;
+                windowData.WindowBackgroundTiledSpriteRenderer.sprite = null;
                 windowData.ContentsSpriteRenderer.sprite = null;
                 windowData.CursorSpriteRenderer.sprite = null;
                 windowData.PauseCursorSpriteRenderer.sprite = null;
@@ -250,10 +265,10 @@ namespace RGSSUnity.RubyClasses
         public static RbValue Move(RbState state, RbValue self, RbValue x, RbValue y, RbValue width, RbValue height)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.X = x.ToIntUnchecked();
-            data.Y = y.ToIntUnchecked();
-            data.Width = width.ToIntUnchecked();
-            data.Height = height.ToIntUnchecked();
+            data.X = (int)x.ToIntUnchecked();
+            data.Y = (int)y.ToIntUnchecked();
+            data.Width = (int)width.ToIntUnchecked();
+            data.Height = (int)height.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -315,7 +330,7 @@ namespace RGSSUnity.RubyClasses
             var data = self.GetRDataObject<WindowData>();
             var viewportData = self.GetRDataObject<ViewportData>();
 
-            data.WindowBorderGameObject.transform.SetParent(viewportData.ViewportObject.transform);
+            data.WindowBackgroundGameObject.transform.SetParent(viewportData.ViewportObject.transform);
 
             self["@viewport"] = viewport;
             return state.RbNil;
@@ -325,8 +340,8 @@ namespace RGSSUnity.RubyClasses
         public static RbValue Dispose(RbState state, RbValue self)
         {
             var data = self.GetRDataObject<WindowData>();
-            Object.Destroy(data.WindowBorderGameObject);
-            data.WindowBorderGameObject = null;
+            Object.Destroy(data.WindowBackgroundGameObject);
+            data.WindowBackgroundGameObject = null;
             return state.RbNil;
         }
 
@@ -334,7 +349,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue Disposed(RbState state, RbValue self)
         {
             var data = self.GetRDataObject<WindowData>();
-            return data.WindowBorderGameObject ? state.RbTrue : state.RbFalse;
+            return data.WindowBackgroundGameObject ? state.RbTrue : state.RbFalse;
         }
 
         [RbInstanceMethod("update")]
@@ -357,13 +372,15 @@ namespace RGSSUnity.RubyClasses
         [RbInstanceMethod("open?")]
         public static RbValue Open(RbState state, RbValue self)
         {
-            return state.RbFalse;
+            var data = self.GetRDataObject<WindowData>();
+            return (data.Openness == 255).ToValue(state);
         }
 
-        [RbInstanceMethod("close")]
+        [RbInstanceMethod("close?")]
         public static RbValue Close(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return (data.Openness == 0).ToValue(state);
         }
 
         [RbInstanceMethod("active")]
@@ -437,7 +454,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue XSet(RbState state, RbValue self, RbValue x)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.X = x.ToIntUnchecked();
+            data.X = (int)x.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -452,7 +469,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue YSet(RbState state, RbValue self, RbValue y)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Y = y.ToIntUnchecked();
+            data.Y = (int)y.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -467,7 +484,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue WidthSet(RbState state, RbValue self, RbValue width)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Width = width.ToIntUnchecked();
+            data.Width = (int)width.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -482,7 +499,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue HeightSet(RbState state, RbValue self, RbValue height)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Height = height.ToIntUnchecked();
+            data.Height = (int)height.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -512,7 +529,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue OxSet(RbState state, RbValue self, RbValue ox)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Ox = ox.ToIntUnchecked();
+            data.Ox = (int)ox.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -527,7 +544,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue OySet(RbState state, RbValue self, RbValue oy)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Oy = oy.ToIntUnchecked();
+            data.Oy = (int)oy.ToIntUnchecked();
             return state.RbNil;
         }
 
@@ -565,85 +582,129 @@ namespace RGSSUnity.RubyClasses
         [RbInstanceMethod("opacity")]
         public static RbValue Opacity(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.Opacity.ToValue(state);
         }
 
         [RbInstanceMethod("opacity=")]
         public static RbValue OpacitySet(RbState state, RbValue self, RbValue opacity)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.Opacity = opacity.ToIntUnchecked();
             return state.RbNil;
         }
 
         [RbInstanceMethod("back_opacity")]
         public static RbValue BackOpacity(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.BackOpacity.ToValue(state);
         }
 
         [RbInstanceMethod("back_opacity=")]
         public static RbValue BackOpacitySet(RbState state, RbValue self, RbValue backOpacity)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.BackOpacity = backOpacity.ToIntUnchecked();
             return state.RbNil;
         }
 
         [RbInstanceMethod("contents_opacity")]
         public static RbValue ContentsOpacity(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.ContentOpacity.ToValue(state);
         }
 
         [RbInstanceMethod("contents_opacity=")]
         public static RbValue ContentsOpacitySet(RbState state, RbValue self, RbValue contentsOpacity)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.ContentOpacity = contentsOpacity.ToIntUnchecked();
             return state.RbNil;
         }
 
         [RbInstanceMethod("openness")]
         public static RbValue Openness(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.Openness.ToValue(state);
         }
 
         [RbInstanceMethod("openness=")]
         public static RbValue OpennessSet(RbState state, RbValue self, RbValue openness)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.Openness = (int)openness.ToIntUnchecked();
             return state.RbNil;
         }
 
         public static void Render(WindowData data)
         {
             // set order
-            data.WindowBackgroundSpriteRenderer.sortingOrder = (int)data.Z;
-            data.WindowBorderSpriteRenderer.sortingOrder = (int)data.Z + 1;
-            data.CursorSpriteRenderer.sortingOrder = (int)data.Z + 1;
-            data.ContentsSpriteRenderer.sortingOrder = (int)data.Z + 2;
-            data.ArrowObjectRenderers.T.sortingOrder = (int)data.Z + 3;
-            data.ArrowObjectRenderers.R.sortingOrder = (int)data.Z + 3;
-            data.ArrowObjectRenderers.B.sortingOrder = (int)data.Z + 3;
-            data.ArrowObjectRenderers.L.sortingOrder = (int)data.Z + 3;
-            data.PauseCursorSpriteRenderer.sortingOrder = (int)data.Z + 3;
+            data.WindowBackgroundSpriteRenderer.sortingOrder = data.Z;
+            data.WindowBackgroundTiledSpriteRenderer.sortingOrder = data.Z + 1;
+            data.WindowBorderSpriteRenderer.sortingOrder = data.Z + 2;
+
+            data.CursorSpriteRenderer.sortingOrder = data.Z + 2;
+            data.ContentsSpriteRenderer.sortingOrder = data.Z + 3;
+            data.ArrowObjectRenderers.T.sortingOrder = data.Z + 4;
+            data.ArrowObjectRenderers.R.sortingOrder = data.Z + 4;
+            data.ArrowObjectRenderers.B.sortingOrder = data.Z + 4;
+            data.ArrowObjectRenderers.L.sortingOrder = data.Z + 4;
+            data.PauseCursorSpriteRenderer.sortingOrder = data.Z + 4;
 
             // main window
-            data.WindowBackgroundSpriteRenderer.size = new Vector2(data.Width, data.Height);
-            data.WindowBorderSpriteRenderer.size = new Vector2(data.Width, data.Height);
+            var opacity = data.Opacity / 255.0f;
+            var color1 = data.WindowBackgroundSpriteRenderer.color;
+            color1.a = data.Opacity / 255.0f * opacity;
+            data.WindowBackgroundSpriteRenderer.color = color1;
+            data.WindowBorderSpriteRenderer.color = color1;
+            data.WindowBackgroundTiledSpriteRenderer.color = color1;
 
-            // contents
-            var contentWidth = data.Width - data.Padding * 2;
-            var contentHeight = data.Height - data.Padding - data.PaddingBottom;
-            var contentRealWidth = data.ContentsBitmapData.Texture2D.width;
-            var contentRealHeight = data.ContentsBitmapData.Texture2D.height;
+            data.WindowBackgroundTiledSpriteRenderer.material.SetVector(
+                Scale_,
+                new Vector4((float)(data.Width - 2) / data.WindowSkinData.BackgroundTexture2.width,
+                    (float)(data.Height - 2) / data.WindowSkinData.BackgroundTexture2.height,
+                    2.0f / data.WindowSkinData.BackgroundTexture2.width,
+                    2.0f / data.WindowSkinData.BackgroundTexture2.height));
 
-            var visualRegion = new UnityEngine.Vector4(
-                (float)data.Ox / contentRealWidth,
-                (float)data.Oy / contentRealHeight,
-                Math.Clamp((float)contentWidth / contentRealWidth, 0.0f, 1.0f),
-                Math.Clamp((float)contentHeight / contentRealHeight, 0.0f, 1.0f)
-            );
-            data.ContentsSpriteRenderer.material.SetVector(Region_, visualRegion);
-            data.ContentsGameObject.transform.localPosition = new Vector3(data.Padding - data.Ox, -data.Padding + data.Oy, 1);
+            data.WindowBackgroundSpriteRenderer.size = new Vector2(data.Width - 2, (data.Height - 2) * (data.Openness / 255.0f));
+            data.WindowBorderSpriteRenderer.size = new Vector2(data.Width, data.Height * (data.Openness / 255.0f));
+
+            var scale = data.WindowBackgroundTiledSpriteRenderer.transform.localScale;
+            scale.y = data.Openness / 255.0f;
+            data.WindowBackgroundTiledSpriteRenderer.transform.localScale = scale;
+
+            if (data.Openness == 255)
+            {
+                data.ContentsGameObject.SetActive(true);
+                // contents
+                var contentWidth = data.Width - data.Padding * 2;
+                var contentHeight = data.Height - data.Padding - data.PaddingBottom;
+                var contentRealWidth = data.ContentsBitmapData.Texture2D.width;
+                var contentRealHeight = data.ContentsBitmapData.Texture2D.height;
+
+                var visualRegion = new Vector4(
+                    (float)data.Ox / contentRealWidth,
+                    (float)data.Oy / contentRealHeight,
+                    Math.Clamp((float)contentWidth / contentRealWidth, 0.0f, 1.0f),
+                    Math.Clamp((float)contentHeight / contentRealHeight, 0.0f, 1.0f)
+                );
+                data.ContentsSpriteRenderer.material.SetVector(Region_, visualRegion);
+                data.ContentsGameObject.transform.localPosition = new Vector3(data.Padding - data.Ox, -data.Padding + data.Oy, 1);
+
+                var color2 = data.ContentsSpriteRenderer.color;
+                color2.a = data.ContentOpacity / 255.0f * opacity;
+                data.ContentsSpriteRenderer.color = color2;
+            }
+            else
+            {
+                data.ContentsGameObject.SetActive(false);
+            }
 
             // scroll arrays
-            if (data.ArrowsVisible)
+            if (data.ArrowsVisible && data.Openness == 255)
             {
                 var res = CheckScroll(data);
                 data.ArrowObjects.T.SetActive(res.T);
@@ -660,7 +721,7 @@ namespace RGSSUnity.RubyClasses
             }
 
             // cursor
-            if (data.CursorRect.Rect is { width: > 0, height: > 0 })
+            if (data.CursorRect.Rect is { width: > 0, height: > 0 } && data.Openness == 255)
             {
                 data.CursorGameObject.SetActive(true);
                 data.CursorSpriteRenderer.size = new Vector2(data.CursorRect.Rect.width, data.CursorRect.Rect.height);
@@ -678,7 +739,7 @@ namespace RGSSUnity.RubyClasses
             }
 
             // pause cursor
-            if (data.PauseGameObject.activeSelf)
+            if (data.PauseGameObject.activeSelf && data.Openness == 255)
             {
                 var sprite = data.PauseCursorSprites[data.PauseCursorIndex];
                 data.PauseCursorSpriteRenderer.sprite = sprite;
@@ -713,6 +774,14 @@ namespace RGSSUnity.RubyClasses
                 new Vector2(0.0f, 1.0f),
                 1.0f);
             windowBackgroundSpriteRender.sprite = windowBorderSpriteNineSliceSprite;
+
+            var windowTileSpriteRenderer = data.WindowBackgroundTiledSpriteRenderer;
+            windowTileSpriteRenderer.sprite = UnityEngine.Sprite.Create(
+                skinData.BackgroundTexture2,
+                new UnityEngine.Rect(0, 0, 64, 64),
+                new Vector2(0.0f, 1.0f),
+                1.0f);
+            windowTileSpriteRenderer.size = new Vector2(data.Width, data.Height);
         }
 
         private static void BuildArrows(WindowData data)
@@ -870,11 +939,6 @@ namespace RGSSUnity.RubyClasses
             }
 
             return (top, right, bottom, left);
-        }
-
-        private static void TagDirty(WindowData data)
-        {
-            data.Dirty = true;
         }
     }
 }

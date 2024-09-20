@@ -72,6 +72,66 @@ class Window
     @handler.hash
   end
 
+  def opacity=(opacity)
+    check_type(opacity, Integer)
+    self.handler.opacity = opacity.clamp(0, 255)
+  end
+
+  def opacity
+    self.handler.opacity
+  end
+
+  def back_opacity=(back_opacity)
+    check_type(back_opacity, Integer)
+    self.handler.back_opacity = back_opacity.clamp(0, 255)
+  end
+
+  def back_opacity
+    self.handler.back_opacity
+  end
+
+  def contents_opacity=(contents_opacity)
+    check_type(contents_opacity, Integer)
+    self.handler.contents_opacity = contents_opacity.clamp(0, 255)
+  end
+
+  def contents_opacity
+    self.handler.contents_opacity
+  end
+
+  def openness=(openness)
+    check_type(openness, Integer)
+    self.handler.openness = openness.clamp(0, 255)
+  end
+
+  def openness
+    self.handler.openness
+  end
+
+  def width=(width)
+    check_type(width, Integer)
+    if width < 0
+      raise ArgumentError.new("width must be positive")
+    end
+    self.handler.width = width
+  end
+
+  def width
+    self.handler.width
+  end
+
+  def height=(height)
+    check_type(height, Integer)
+    if height < 0
+      raise ArgumentError.new("height must be positive")
+    end
+    self.handler.height = height
+  end
+  
+  def height
+    self.handler.height
+  end
+
   [:dispose, :disposed?, :update, :open?, :close?].each do |method|
     define_method(method) do |*args|
       @handler.send(method, *args)
@@ -85,17 +145,11 @@ class Window
     :pause => [TrueClass, FalseClass],
     :x => Integer,
     :y => Integer,
-    :width => Integer,
-    :height => Integer,
     :z => Integer,
     :ox => Integer,
     :oy => Integer,
     :padding => Integer,
     :padding_bottom => Integer,
-    :opacity => Integer,
-    :back_opacity => Integer,
-    :contents_opacity => Integer,
-    :openness => Integer,
   }
 
   TYPE_CHECK_MAP.each do |prop, type|

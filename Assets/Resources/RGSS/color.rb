@@ -59,7 +59,7 @@ class Color
   [:red, :blue, :green, :alpha].each do |prop|
     define_method("#{prop}=") do |value|
       check_type(value, Integer)
-      v = Math.clamp(value, 0, 255)
+      v = value.clamp(0, 255)
       @handler.send(prop, v)
     end
     define_method(prop) do

@@ -1,10 +1,8 @@
-Shader "Custom/PlaneShader"
+Shader "Custom/TiledBackgroundShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _MixColor ("Color to mixture", Vector) = (0,0,0,0)
-        _Tone ("Tone to mixture", Vector) = (0,0,0,0)
         _Scale ("Scale", Vector) = (0,0,0,0)
     }
     SubShader
@@ -34,14 +32,15 @@ Shader "Custom/PlaneShader"
             };
 
             float4 _Scale;
-
-            v2f vert(appdata v)
+            
+            v2f vert (appdata v)
             {
                 v2f o;
                 float4 scaledVertex = v.vertex;
                 scaledVertex.xy *= _Scale.xy;
-
+                
                 o.vertex = UnityObjectToClipPos(scaledVertex);
+
                 float offsetY = _Scale.y - 1.0f;
                 float2 uv = v.uv;
                 uv *= _Scale.xy;
@@ -55,26 +54,10 @@ Shader "Custom/PlaneShader"
             }
 
             sampler2D _MainTex;
-            fixed4 _MixColor;
-            fixed4 _Tone;
 
-            const fixed3 lumaF = float3(.299, .587, .114);
-
-            fixed4 frag(v2f i) : SV_Target
+            fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv;
                 fixed4 col = tex2D(_MainTex, i.uv);
-
-                // Apply gray
-                float luma = dot(col.rgb, lumaF);
-                col.rgb = lerp(col.rgb, float3(luma, luma, luma), _Tone.w);
-
-                // Apply tone
-                col.rgb += _Tone.rgb;
-
-                // Apply color
-                col.rgb = lerp(col.rgb, _MixColor.rgb, _MixColor.a);
-
                 return col;
             }
             ENDCG

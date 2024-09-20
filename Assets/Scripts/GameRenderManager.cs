@@ -134,9 +134,11 @@ namespace RGSSUnity
                         }
                         sprite.gameObject.SetActive(true);
 
+                        var openness = data.Openness;
+                        var offsetY = data.Height * (1.0f - openness / 255.0f);
                         sprite.transform.position = new Vector3(
                             data.X - viewportTex.width / 2.0f,
-                            -data.Y + viewportTex.height / 2.0f,
+                            -data.Y + viewportTex.height / 2.0f - offsetY / 2,
                             data.Z);
                         RubyClasses.Window.Render(data);
                     }

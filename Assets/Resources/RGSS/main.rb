@@ -108,14 +108,14 @@ begin
   # window.contents = contents
   window.cursor_rect = Rect.new(20, 20, 200, 200)
   window.pause = true
+  
+  window.openness = 0
 
 rescue Exception => e
   str = format_exc_string(e)
   Unity.on_top_exception(str)
   return
 end
-
-cnt = 0
 
 Unity.on_update = proc do
   # to catch unhandled exceptions and notify native side
@@ -127,6 +127,9 @@ Unity.on_update = proc do
     #   window.oy = window.oy + 1
     # end
     # cnt += 1
+    if window.openness < 255
+      window.openness += 1
+    end
     window.update
     ::Graphics.update
   rescue Exception => e

@@ -41,7 +41,7 @@ namespace RGSSUnity.RubyClasses
         private static readonly Shader PlaneShader_ = Shader.Find("Custom/PlaneShader");
         private static readonly int SrcBlend_ = Shader.PropertyToID("_SrcBlend");
         private static readonly int DstBlend_ = Shader.PropertyToID("_DstBlend");
-        private static readonly int OxOy_ = Shader.PropertyToID("_OxOy");
+        // private static readonly int OxOy_ = Shader.PropertyToID("_OxOy");
         private static readonly int MixColor_ = Shader.PropertyToID("_MixColor");
         private static readonly int Tone_ = Shader.PropertyToID("_Tone");
         private static readonly int Scale_ = Shader.PropertyToID("_Scale");
@@ -383,8 +383,11 @@ namespace RGSSUnity.RubyClasses
                     break;
             }
 
-            material.SetVector(OxOy_, new Vector2(data.Ox / (float)width, data.Oy / (float)height));
-            material.SetVector(Scale_, new Vector2((float)width / bitmapWidth, (float)height / bitmapHeight));
+            material.SetVector(Scale_, new Vector4(
+                (float)width / bitmapWidth,
+                (float)height / bitmapHeight, 
+                data.Ox / (float)width,
+                data.Oy / (float)height));
 
             if (data.ColorData != null)
             {

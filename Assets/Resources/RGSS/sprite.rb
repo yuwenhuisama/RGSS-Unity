@@ -85,7 +85,7 @@ class Sprite
 
   def opacity=(opacity)
     check_arguments([opacity], [Integer])
-    @handler.opacity = Math.clamp(opacity, 0, 255)
+    @handler.opacity = opacity.clamp(0, 255)
   end
 
   def opacity
