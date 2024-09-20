@@ -119,6 +119,7 @@ namespace RGSSUnity.RubyClasses
 
         public bool ArrowsVisible;
         public bool Active;
+        public bool Visible;
 
         public bool Dirty;
 
@@ -154,6 +155,7 @@ namespace RGSSUnity.RubyClasses
                 },
                 ArrowsVisible = true,
                 Active = true,
+                Visible = true,
             };
 
             var viewportData = viewport.GetRDataObject<ViewportData>();
@@ -383,14 +385,14 @@ namespace RGSSUnity.RubyClasses
         public static RbValue Visible(RbState state, RbValue self)
         {
             var data = self.GetRDataObject<WindowData>();
-            return data.WindowBorderGameObject.activeSelf.ToValue(state);
+            return data.Visible.ToValue(state);
         }
 
         [RbInstanceMethod("visible=")]
         public static RbValue VisibleSet(RbState state, RbValue self, RbValue visible)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.WindowBorderGameObject.SetActive(visible.IsTrue);
+            data.Visible = visible.IsTrue;
             return state.RbNil;
         }
 
@@ -457,24 +459,30 @@ namespace RGSSUnity.RubyClasses
         [RbInstanceMethod("width")]
         public static RbValue Width(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.Width.ToValue(state);
         }
 
         [RbInstanceMethod("width=")]
         public static RbValue WidthSet(RbState state, RbValue self, RbValue width)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.Width = width.ToIntUnchecked();
             return state.RbNil;
         }
 
         [RbInstanceMethod("height")]
         public static RbValue Height(RbState state, RbValue self)
         {
-            return state.RbNil;
+            var data = self.GetRDataObject<WindowData>();
+            return data.Height.ToValue(state);
         }
 
         [RbInstanceMethod("height=")]
         public static RbValue HeightSet(RbState state, RbValue self, RbValue height)
         {
+            var data = self.GetRDataObject<WindowData>();
+            data.Height = height.ToIntUnchecked();
             return state.RbNil;
         }
 

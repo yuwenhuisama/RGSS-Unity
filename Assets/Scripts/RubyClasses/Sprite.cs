@@ -39,6 +39,7 @@ namespace RGSSUnity.RubyClasses
         public int BushOpacity = 255;
         public int Opacity = 255;
         public int BlendType = 0;
+        public bool Visible;
 
         public SpriteData(RbState state) : base(state)
         {
@@ -80,6 +81,7 @@ namespace RGSSUnity.RubyClasses
             {
                 SpriteObject = new GameObject("sprite"),
                 Z = 1,
+                Visible = true,
             };
 
             data.ToneData = new ToneData(state)

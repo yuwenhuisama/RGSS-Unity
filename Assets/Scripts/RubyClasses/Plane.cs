@@ -15,6 +15,7 @@ namespace RGSSUnity.RubyClasses
         public SpriteRenderer SpriteRenderer;
         public long ViewportWidth;
         public long ViewportHeight;
+        public bool Visible;
 
         public int Z;
         public int Ox;
@@ -63,6 +64,7 @@ namespace RGSSUnity.RubyClasses
                 {
                     Color = UnityEngine.Color.clear
                 },
+                Visible = true,
             };
 
             var planeObject = data.PlaneObject;
@@ -216,14 +218,14 @@ namespace RGSSUnity.RubyClasses
         public static RbValue GetVisible(RbState state, RbValue self)
         {
             var data = self.GetRDataObject<PlaneData>();
-            return data.PlaneObject.activeSelf.ToValue(state);
+            return data.Visible.ToValue(state);
         }
 
         [RbInstanceMethod("visible=")]
         public static RbValue SetVisible(RbState state, RbValue self, RbValue visible)
         {
             var data = self.GetRDataObject<PlaneData>();
-            data.PlaneObject.SetActive(visible.IsTrue);
+            data.Visible = visible.IsTrue;
             return state.RbNil;
         }
 

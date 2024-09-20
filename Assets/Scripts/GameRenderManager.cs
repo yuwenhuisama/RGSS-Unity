@@ -90,7 +90,12 @@ namespace RGSSUnity
                     if (sprite.gameObject.CompareTag("RGSSSprite"))
                     {
                         var data = sprite.GetComponent<SpriteDataComponent>().SpriteData;
+                        if (data.Visible)
+                        {
+                            continue;
+                        }
 
+                        sprite.gameObject.SetActive(true);
                         sprite.transform.position = new Vector3(
                             data.X - viewportTex.width / 2.0f,
                             -data.Y + viewportTex.height / 2.0f,
@@ -108,7 +113,12 @@ namespace RGSSUnity
                     else if (sprite.gameObject.CompareTag("RGSSPlane"))
                     {
                         var data = sprite.GetComponent<PlaneDataComponent>().PlaneData;
+                        if (!data.Visible)
+                        {
+                            continue;
+                        }
 
+                        sprite.gameObject.SetActive(true);
                         sprite.transform.position = new Vector3(
                             -viewportTex.width / 2.0f,
                             viewportTex.height / 2.0f,
@@ -118,6 +128,11 @@ namespace RGSSUnity
                     else if (sprite.gameObject.CompareTag("RGSSWindow"))
                     {
                         var data = sprite.GetComponent<WindowDataComponent>().WindowData;
+                        if (!data.Visible)
+                        {
+                            continue;
+                        }
+                        sprite.gameObject.SetActive(true);
 
                         sprite.transform.position = new Vector3(
                             data.X - viewportTex.width / 2.0f,
@@ -126,7 +141,6 @@ namespace RGSSUnity
                         RubyClasses.Window.Render(data);
                     }
 
-                    sprite.gameObject.SetActive(true);
                     renderers.Add(sprite.gameObject);
 
                     // render to viewport texture
