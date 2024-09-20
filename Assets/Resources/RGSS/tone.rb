@@ -39,10 +39,15 @@ class Tone
   end
 
   def eql?(other)
-    if self == other
+    unless other.is_a? Tone
+      return false
+    end
+    
+    if self == other || self.handler == other.handler
       true
     end
-    self.handler == other.handler
+    
+    self.red == other.red && self.green == other.green && self.blue == other.blue && self.gray == other.gray
   end
 
   def hash

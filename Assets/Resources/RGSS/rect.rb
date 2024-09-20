@@ -39,10 +39,13 @@ class Rect
   end
 
   def eql?(other)
-    if self == other
-      true
+    unless other.is_a?(Rect)
+      return false
     end
-    self.handler == other.handler
+    if self == other || self.handler == other.handler
+      return true
+    end
+    self.x == other.x && self.y == other.y && self.w == other.w && self.h == other.h
   end
 
   def hash

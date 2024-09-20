@@ -16,7 +16,7 @@ namespace RGSSUnity.RubyClasses
     [RbClass("Rect", "Object", "Unity")]
     public static class Rect
     {
-        public static RbValue CreateRect(RbState state, long xVal, long yVal, long wVal, long hVal)
+        public static RbValue CreateRect(RbState state, float xVal, float yVal, float wVal, float hVal)
         {
             var rect = new UnityEngine.Rect(xVal, yVal, wVal, hVal);
             var stub = new RectData(state) { Rect = rect };

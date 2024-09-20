@@ -111,10 +111,18 @@ class Font
   end
 
   def eql?(other)
-    if self == other
-      true
+    unless other.is_a? Font
+      return false
     end
-    self.handler == other.handler
+    
+    if self == other || self.handler == other.handler
+      return true
+    end
+
+    self.name == other.name && self.size == other.size && 
+      self.bold == other.bold && self.italic == other.italic && 
+      self.shadow == other.shadow && self.outline == other.outline && 
+      self.color == other.color && self.out_color == other.out_color
   end
 
   def hash

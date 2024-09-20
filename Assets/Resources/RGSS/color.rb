@@ -40,10 +40,16 @@ class Color
   end
 
   def eql?(other)
-    if self == other
+    unless other.is_a? Color
+      return false
+    end
+
+    if self == other || self.handler == other.handler
       true
     end
-    self.handler == other.handler
+
+    self.red == other.red && self.green == other.green && self.blue == other.blue && self.alpha == other.alpha
+
   end
 
   def hash

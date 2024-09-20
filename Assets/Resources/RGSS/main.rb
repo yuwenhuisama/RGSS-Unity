@@ -101,11 +101,13 @@ begin
   window = Window.new(10, 10, 400, 300)
   window.windowskin = Bitmap.new("Window.png")
 
-  contents = bitmap = Bitmap.new("Book.png")
+  # contents = Bitmap.new("Book.png")
   # contents.fill_rect(0, 0, 200, 400, Color::RED)
-  window.ox = 100
-  window.oy = 100
-  window.contents = contents
+  window.ox = 0
+  window.oy = 0
+  # window.contents = contents
+  window.cursor_rect = Rect.new(20, 20, 200, 200)
+  window.pause = true
 
 rescue Exception => e
   str = format_exc_string(e)
@@ -119,13 +121,13 @@ Unity.on_update = proc do
   # to catch unhandled exceptions and notify native side
   begin
     # sprite.update
-    if cnt % 10 == 0
-      msgbox("cnt", cnt)
-      window.ox = window.ox + 1
-      window.oy = window.oy + 1
-    end
-    cnt += 1
-
+    # if cnt % 10 == 0
+    #   msgbox("cnt", cnt)
+    #   window.ox = window.ox + 1
+    #   window.oy = window.oy + 1
+    # end
+    # cnt += 1
+    window.update
     ::Graphics.update
   rescue Exception => e
     str = format_exc_string(e)
