@@ -5,7 +5,7 @@ This Project is the RGSS3 implementation based on Unity.
 Current work flow:
 
 * [X] Ruby integration
-* [ ] RGSS built-in classes/modules implementaition with Unity
+* [X] RGSS built-in classes/modules implementaition with Unity
   * [X] Viewport
   * [X] Sprite
   * [X] Bitmap
@@ -14,10 +14,10 @@ Current work flow:
   * [X] Tone
   * [X] Color
   * [X] Table
-  * [ ] Window
+  * [X] Window
   * [X] Graphics
-  * [ ] Input
-  * [ ] Audio
+  * [X] Input
+  * [X] Audio
 * [X] RGSS data structure import
 * [ ] RPG Maker VX Ace Project compatible
 
