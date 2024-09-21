@@ -1,7 +1,7 @@
 ﻿require 'type_check_util'
 
 module Audio
-  include TypeCheckUtil
+  extend TypeCheckUtil
 
   def self.bgm_play(filename, volume = 100, pitch = 100, pos = 0)
     check_arguments([filename, volume, pitch, pos], [String, Integer, Integer, Integer])

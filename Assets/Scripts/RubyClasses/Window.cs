@@ -31,11 +31,11 @@ namespace RGSSUnity.RubyClasses
             skinData = new WindowSkinData();
 
             // A
-            CopyTexture(skinTexture, out var txt, 0, 0, RegionSize, RegionSize);
+            CopyTextureToNewTexture(skinTexture, out var txt, 0, 0, RegionSize, RegionSize);
             skinData.BackgroundTexture1 = txt;
 
             // B
-            CopyTexture(skinTexture, out txt, 64, 0, 64, 64);
+            CopyTextureToNewTexture(skinTexture, out txt, 64, 0, 64, 64);
             var clearX = 16;
             var clearY = 16;
             var clearW = 32;
@@ -50,19 +50,19 @@ namespace RGSSUnity.RubyClasses
             skinData.WindowBorderTexture = txt;
 
             // array
-            CopyTexture(skinTexture, out txt, 64, 0, 64, 64);
+            CopyTextureToNewTexture(skinTexture, out txt, 64, 0, 64, 64);
             skinData.ScrollArrayTexture = txt;
 
             // C
-            CopyTexture(skinTexture, out txt, 0, 64, 64, 64);
+            CopyTextureToNewTexture(skinTexture, out txt, 0, 64, 64, 64);
             skinData.BackgroundTexture2 = txt;
 
             // D
-            CopyTexture(skinTexture, out txt, 64, 64, 32, 32);
+            CopyTextureToNewTexture(skinTexture, out txt, 64, 64, 32, 32);
             skinData.SelectionBorderTexture = txt;
 
             // Pause cursor frames
-            CopyTexture(skinTexture, out txt, 64 + 32, 64, 32, 32);
+            CopyTextureToNewTexture(skinTexture, out txt, 64 + 32, 64, 32, 32);
             skinData.PauseCursorTexture = txt;
 
             Cache_.Add(skinTexture, skinData);
@@ -70,7 +70,47 @@ namespace RGSSUnity.RubyClasses
             return skinData;
         }
 
-        private static void CopyTexture(Texture2D from, out Texture2D to, int x, int y, int w, int h)
+        public void UpdateFromTexture2D(Texture2D skinTexture)
+        {
+            // A
+            CopyTexture(skinTexture, this.BackgroundTexture1, 0, 0, RegionSize, RegionSize);
+
+            // B
+            CopyTexture(skinTexture, this.WindowBorderTexture, 64, 0, 64, 64);
+            var clearX = 16;
+            var clearY = 16;
+            var clearW = 32;
+            var clearH = 32;
+            var colors = new UnityEngine.Color[clearW * clearH];
+            for (var i = 0; i < clearW * clearH; i++)
+            {
+                colors[i] = UnityEngine.Color.clear;
+            }
+            this.WindowBorderTexture.SetPixels(clearX, clearY, clearW, clearH, colors);
+            this.WindowBorderTexture.Apply();
+
+            // array
+            CopyTexture(skinTexture, this.ScrollArrayTexture, 64, 0, 64, 64);
+
+            // C
+            CopyTexture(skinTexture, this.BackgroundTexture2, 0, 64, 64, 64);
+
+            // D
+            CopyTexture(skinTexture, this.SelectionBorderTexture, 64, 64, 32, 32);
+
+            // Pause cursor frames
+            CopyTexture(skinTexture, this.PauseCursorTexture, 64 + 32, 64, 32, 32);
+        }
+
+        private static void CopyTexture(Texture2D from, Texture2D to, int x, int y, int w, int h)
+        {
+            y = from.height - y - h;
+            var fromPixels = from.GetPixels(x, y, w, h);
+            to.SetPixels(0, 0, w, h, fromPixels);
+            to.Apply();
+        }
+
+        private static void CopyTextureToNewTexture(Texture2D from, out Texture2D to, int x, int y, int w, int h)
         {
             y = from.height - y - h;
             to = new Texture2D(w, h, TextureFormat.ARGB32, false, false);
@@ -94,6 +134,8 @@ namespace RGSSUnity.RubyClasses
         public int PauseCursorIndex;
 
         public BitmapData ContentsBitmapData;
+        public BitmapData WindowSkinBitmapData;
+
         public RectData CursorRect;
 
         public int X;
@@ -250,6 +292,7 @@ namespace RGSSUnity.RubyClasses
                 var skinTexture = windowSkinBitmapData.Texture2D;
                 var windowSkinData = WindowSkinData.FromTexture2D(skinTexture);
                 windowData.WindowSkinData = windowSkinData;
+                windowData.WindowSkinBitmapData = windowSkinBitmapData;
 
                 BuildWindow(windowData);
                 BuildArrows(windowData);
@@ -641,6 +684,17 @@ namespace RGSSUnity.RubyClasses
 
         public static void Render(WindowData data)
         {
+            if (data.WindowSkinBitmapData is { Dirty: true })
+            {
+                Bitmap.ApplyTexture2DChange(data.WindowSkinBitmapData);
+                data.WindowSkinData.UpdateFromTexture2D(data.WindowSkinBitmapData.Texture2D);
+            }
+
+            if (data.ContentsBitmapData is { Dirty: true })
+            {
+                Bitmap.ApplyTexture2DChange(data.ContentsBitmapData);
+            }
+
             // set order
             data.WindowBackgroundSpriteRenderer.sortingOrder = data.Z;
             data.WindowBackgroundTiledSpriteRenderer.sortingOrder = data.Z + 1;
@@ -679,6 +733,7 @@ namespace RGSSUnity.RubyClasses
             if (data.Openness == 255)
             {
                 data.ContentsGameObject.SetActive(true);
+
                 // contents
                 var contentWidth = data.Width - data.Padding * 2;
                 var contentHeight = data.Height - data.Padding - data.PaddingBottom;

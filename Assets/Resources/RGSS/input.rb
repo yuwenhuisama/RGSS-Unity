@@ -1,8 +1,6 @@
 ﻿require 'type_check_util'
 
-module Input
-  include TypeCheckUtil
-
+module Kernel
   DOWN = :DOWN
   LEFT = :LEFT
   RIGHT = :RIGHT
@@ -26,20 +24,24 @@ module Input
   F7 = :F7
   F8 = :F8
   F9 = :F9
+end
+
+module Input
+  extend TypeCheckUtil
 
   VALID_KEYS = Set.new([DOWN, LEFT, RIGHT, UP, A, B, C, X, Y, Z, L, R, SHIFT, CTRL, ALT, F5, F6, F7, F8, F9])
 
-  def press?(key)
+  def self.press?(key)
     check_arguments([key], [Symbol])
     Unity::Input.press?(key) if VALID_KEYS.include? key
   end
 
-  def trigger?(key)
+  def self.trigger?(key)
     check_arguments([key], [Symbol])
     Unity::Input.trigger?(key) if VALID_KEYS.include? key
   end
 
-  def repeat?(key)
+  def self.repeat?(key)
     check_arguments([key], [Symbol])
     Unity::Input.repeat?(key) if VALID_KEYS.include? key
   end

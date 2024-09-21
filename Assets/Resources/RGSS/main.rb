@@ -26,6 +26,7 @@ begin
   require 'viewport'
   require 'plane'
   require 'window'
+  require 'input'
 
   # msgbox("create viewport")
   # viewport = Viewport.new(200, 200, 1024, 1024)
@@ -131,7 +132,21 @@ Unity.on_update = proc do
       window.openness += 1
     end
     window.update
+
+    if Input.trigger? :C
+      msgbox "trigger"
+    end
+
+    if Input.press? :C
+      msgbox "press"
+    end
+
+    if Input.repeat? :C
+      msgbox "repeat"
+    end
+
     ::Graphics.update
+    Input.update
   rescue Exception => e
     str = format_exc_string(e)
     Unity.on_top_exception(str)

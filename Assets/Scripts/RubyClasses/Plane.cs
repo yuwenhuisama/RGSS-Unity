@@ -129,19 +129,7 @@ namespace RGSSUnity.RubyClasses
                 var renderer = data.SpriteRenderer;
                 data.BitmapData = bitmapData;
 
-                var tex2dRepeat = new Texture2D(
-                    bitmapData.Texture2D.width,
-                    bitmapData.Texture2D.height,
-                    TextureFormat.ARGB32,
-                    false,
-                    false);
-                Sprite.TextureCopy(
-                    bitmapData.Texture2D,
-                    tex2dRepeat,
-                    new UnityEngine.Rect(0, 0, bitmapData.Texture2D.width, bitmapData.Texture2D.height),
-                    0,
-                    0);
-                Sprite.SetSpriteToSpriteRenderer(renderer, tex2dRepeat);
+                SetBitmapDataToSpriteRenderer(bitmapData, renderer);
 
                 spriteObj.transform.position = new Vector3(0, 0, 1.0f);
             }
@@ -156,6 +144,23 @@ namespace RGSSUnity.RubyClasses
 
             self.SetInstanceVariable("@bitmap", bitmap);
             return state.RbNil;
+        }
+
+        private static void SetBitmapDataToSpriteRenderer(BitmapData bitmapData, SpriteRenderer renderer)
+        {
+            // var tex2dRepeat = new Texture2D(
+            //     bitmapData.Texture2D.width,
+            //     bitmapData.Texture2D.height,
+            //     TextureFormat.ARGB32,
+            //     false,
+            //     false);
+            // Sprite.TextureCopy(
+            //     bitmapData.Texture2D,
+            //     tex2dRepeat,
+            //     new UnityEngine.Rect(0, 0, bitmapData.Texture2D.width, bitmapData.Texture2D.height),
+            //     0,
+            //     0);
+            Sprite.SetSpriteToSpriteRenderer(renderer, bitmapData.Texture2D);
         }
 
         [RbInstanceMethod("tone")]
@@ -345,6 +350,14 @@ namespace RGSSUnity.RubyClasses
 
         public static void Render(PlaneData data)
         {
+            // if bitmap changed, then apply the change
+            if (data.BitmapData is { Dirty: true })
+            {
+                RubyClasses.Bitmap.ApplyTexture2DChange(data.BitmapData);
+            }
+
+            data.SpriteRenderer.sortingOrder = data.Z;
+            
             SetShaderProperties(data);
         }
 

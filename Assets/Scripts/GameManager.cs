@@ -18,6 +18,9 @@ namespace RGSSUnity
             var scriptMgr = RubyScriptManager.Instance;
             scriptMgr.Initialize();
             scriptMgr.LoadMainScript();
+            
+            var inputMgr = InputStateRecorder.Instance;
+            inputMgr.Init();
         }
 
         // Update is called once per frame

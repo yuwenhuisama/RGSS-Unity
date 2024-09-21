@@ -658,6 +658,8 @@ namespace RGSSUnity.RubyClasses
                     data.SpriteRenderer);
             }
 
+            data.SpriteRenderer.sortingOrder = data.Z;
+            
             SetShaderProperties(data);
         }
 
@@ -668,8 +670,8 @@ namespace RGSSUnity.RubyClasses
             spriteRenderer.sprite = UnityEngine.Sprite.Create(
                 newTexture, new UnityEngine.Rect(0, 0, newTexture.width, newTexture.height), new Vector2(0, 1), 1.0f);
         }
-        
-        internal static void TextureCopy(Texture2D src, Texture2D dest, UnityEngine.Rect srcRect, int destX, int destY)
+
+        private static void TextureCopy(Texture2D src, Texture2D dest, UnityEngine.Rect srcRect, int destX, int destY)
         {
             var tmpRenderTex = RenderTexture.GetTemporary(
                 dest.width,
