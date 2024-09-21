@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\RubyClasses\Input.cs" />
     <Compile Include="Assets\Scripts\RubyClasses\Bitmap.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
+    <Compile Include="Assets\Scripts\GameAudioManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
@@ -113,6 +114,8 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Unity - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\Packages\NAudio.Core.2.2.1\lib\netstandard2.0\NAudio.Core.xml" />
+    <None Include="Assets\Packages\NAudio.Wasapi.2.2.1\lib\netstandard2.0\NAudio.Wasapi.xml" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Oswald-Bold - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - AFL.txt" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Anton OFL.txt" />
@@ -124,6 +127,7 @@
     <None Include="Assets\Shaders\RadiaBlurShader.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl" />
     <None Include="Assets\Shaders\TransitionPostprocessShader.shader" />
+    <None Include="Assets\Packages\NAudio.Midi.2.2.1\lib\netstandard2.0\NAudio.Midi.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\Shaders\StretchBltShader.shader" />
@@ -514,6 +518,15 @@
     </Reference>
     <Reference Include="MRuby.Library">
       <HintPath>E:\Projects\PhysTetris\RMUnity\Assets\Packages\MRuby.Library.0.1.6\lib\netstandard2.1\MRuby.Library.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Core">
+      <HintPath>E:\Projects\PhysTetris\RMUnity\Assets\Packages\NAudio.Core.2.2.1\lib\netstandard2.0\NAudio.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Midi">
+      <HintPath>E:\Projects\PhysTetris\RMUnity\Assets\Packages\NAudio.Midi.2.2.1\lib\netstandard2.0\NAudio.Midi.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Wasapi">
+      <HintPath>E:\Projects\PhysTetris\RMUnity\Assets\Packages\NAudio.Wasapi.2.2.1\lib\netstandard2.0\NAudio.Wasapi.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:\Unity6\6000.0.20f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>

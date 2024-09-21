@@ -27,6 +27,7 @@ begin
   require 'plane'
   require 'window'
   require 'input'
+  require 'audio'
 
   # msgbox("create viewport")
   # viewport = Viewport.new(200, 200, 1024, 1024)
@@ -112,12 +113,14 @@ begin
   
   window.openness = 0
 
+  Audio.bgm_play("Audio/BGM/Airship.wma", 30, 100, 0)
 rescue Exception => e
   str = format_exc_string(e)
   Unity.on_top_exception(str)
   return
 end
 
+cnt = 0
 Unity.on_update = proc do
   # to catch unhandled exceptions and notify native side
   begin
@@ -145,6 +148,12 @@ Unity.on_update = proc do
       msgbox "repeat"
     end
 
+    cnt += 1
+    if cnt == 120
+      msgbox("start fade out")
+      Audio.bgm_fade(6000)
+    end
+    
     ::Graphics.update
     Input.update
   rescue Exception => e
