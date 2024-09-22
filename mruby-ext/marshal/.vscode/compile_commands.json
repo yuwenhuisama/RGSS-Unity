@@ -1,0 +1,16 @@
+[
+{
+  "directory": "e:\\Projects\\PhysTetris\\PhysTetris\\MrubyExtension\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\dump.c.obj", "mruby-marshal-c\\src\\dump.c", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include"],
+  "file": "mruby-marshal-c\\src\\dump.c"
+},
+{
+  "directory": "e:\\Projects\\PhysTetris\\PhysTetris\\MrubyExtension\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\load.c.obj", "mruby-marshal-c\\src\\load.c", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include"],
+  "file": "mruby-marshal-c\\src\\load.c"
+},
+{
+  "directory": "e:\\Projects\\PhysTetris\\PhysTetris\\MrubyExtension\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\marshal.c.obj", "mruby-marshal-c\\src\\marshal.c", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\include"],
+  "file": "mruby-marshal-c\\src\\marshal.c"
+}]

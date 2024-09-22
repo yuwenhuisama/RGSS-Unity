@@ -1,0 +1,3 @@
+[submodule "mruby-ext/marshal/mruby-marshal-c"]
+	path = mruby-ext/marshal/mruby-marshal-c
+	url = https://github.com/LanzaSchneider/mruby-marshal-c.git

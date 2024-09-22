@@ -1,0 +1,4 @@
+LIBRARY libmruby_marshal_ext.dll
+EXPORTS
+    mrb_mruby_marshal_c_gem_init
+    mrb_mruby_marshal_c_gem_final
