@@ -16,7 +16,7 @@ namespace RGSSUnity.RubyClasses
         public static void Init(RbClass cls)
         {
             KeyMap_.Clear();
-            var state = cls.RbState;
+            var state = cls.State;
             InputStateRecorder.InputKey[] keys = (InputStateRecorder.InputKey[])System.Enum.GetValues(typeof(InputStateRecorder.InputKey));
             foreach (var key in keys)
             {
