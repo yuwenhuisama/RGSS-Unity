@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace RGSSUnity
 {
+    using System;
+    using System.Runtime.InteropServices;
 
     public class RubyScriptManager
     {
@@ -15,10 +17,15 @@ namespace RGSSUnity
         public RbClass UnityModule { get; private set; }
         private RbContext context;
 
+        [DllImport("libmruby_marshal_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern void mrb_mruby_marshal_c_gem_init(IntPtr mrb);
+
         public void Initialize()
         {
             this.State = Ruby.Open();
             this.context = this.State.NewCompileContext();
+
+            mrb_mruby_marshal_c_gem_init(this.State.NativeHandler);
 
             this.UnityModule = this.State.DefineModule("Unity");
 
@@ -43,7 +50,7 @@ namespace RGSSUnity
             {
                 string scriptContent = scriptAsset.text;
                 Debug.Log("Loaded resource script content: \n" + scriptContent);
-                
+
                 using var compiler = this.State.NewCompilerWithCodeString(scriptContent, this.context);
                 this.context.SetFilename($"{fileName}.rb");
                 compiler.SetFilename($"{fileName}.rb");

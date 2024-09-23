@@ -1,30 +1,25 @@
 ﻿using System;
 using MRuby.Library.Language;
 using MRuby.Library.Mapper;
+using System.Collections.Generic;
+using UnityEngine;
+using ICSharpCode.SharpZipLib;
 
 namespace RGSSUnity.RubyClasses
 {
-    using MRuby.Library;
-    using UnityEngine;
-
-    class UnityModuleCategory
-    {
-    }
+    using System.IO;
+    using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
     [RbModule("Unity", "")]
     public static class UnityModule
     {
-        private static RbValue onUpdateProc = null!;
+        private static RbValue OnUpdateProc = null!;
+        private static List<(long ScriptId, string ScriptName, string ScriptContent)> RmvaScripts = new();
 
         [RbInitEntryPoint]
         public static void Init(RbClass cls)
         {
             var state = RubyScriptManager.Instance.State;
-
-            onUpdateProc = state.NewProc((stat, self, args) => state.RbNil, out var callFn).ToValue();
-
-            RbNativeObjectLiveKeeper<UnityModuleCategory, NativeMethodFunc>.GetOrCreateKeeper(state).Keep("OnUpdate", callFn);
-            state.GcRegister(onUpdateProc);
         }
 
         public static void Update()
@@ -36,7 +31,14 @@ namespace RGSSUnity.RubyClasses
                 return;
             }
 
-            onUpdateProc.CallMethod("call");
+            OnUpdateProc?.CallMethod("call");
+        }
+
+        [RbClassMethod("rmva_project_path")]
+        private static RbValue GetRmvaProjectPath(RbState state, RbValue self)
+        {
+            var path = Application.streamingAssetsPath;
+            return path.ToValue(state);
         }
 
         [RbClassMethod("on_top_exception")]
@@ -50,15 +52,12 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("on_update=")]
         private static RbValue SetOnUpdate(RbState state, RbValue self, RbValue val)
         {
-            var keeper = RbNativeObjectLiveKeeper<UnityModuleCategory, NativeMethodFunc>.GetOrCreateKeeper(state);
-            if (keeper.Contains("OnUpdate"))
+            if (OnUpdateProc != null)
             {
-                keeper.Release("OnUpdate");
+                state.GcUnregister(OnUpdateProc);
             }
-
-            state.GcUnregister(onUpdateProc);
-            onUpdateProc = val;
-            state.GcRegister(onUpdateProc);
+            OnUpdateProc = val;
+            state.GcRegister(OnUpdateProc);
 
             return state.RbNil;
         }
@@ -66,7 +65,7 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("on_update")]
         private static RbValue GetOnUpdate(RbState state, RbValue self)
         {
-            return onUpdateProc;
+            return OnUpdateProc ?? state.RbNil;
         }
 
         [RbClassMethod("msgbox")]
@@ -78,6 +77,23 @@ namespace RGSSUnity.RubyClasses
                 var message = state.UnboxString(str);
                 Debug.Log(message);
             });
+            return state.RbNil;
+        }
+
+        [RbClassMethod("register_rmva_script")]
+        private static RbValue RegisterRmvaScript(RbState state, RbValue self, RbValue scriptId, RbValue scriptName, RbValue scriptContent)
+        {
+            var id = scriptId.ToIntUnchecked();
+            var name = scriptName.ToStringUnchecked();
+            var bytes = RbHelper.GetRawBytesFromRbStringObject(scriptContent);
+
+            // use ICSharpCode.SharpZipLib to inflate bytes
+            using var inputStream = new MemoryStream(bytes);
+            using var inflaterStream = new InflaterInputStream(inputStream);
+            using var outputStream = new MemoryStream();
+            inflaterStream.CopyTo(outputStream);
+            var scriptString = System.Text.Encoding.UTF8.GetString(outputStream.ToArray());
+
             return state.RbNil;
         }
     }

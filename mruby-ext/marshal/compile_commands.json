@@ -1,0 +1,6 @@
+[
+{
+  "directory": "E:\\Projects\\PhysTetris\\RMUnity\\mruby-ext\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/Imruby-marshal\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/EHsc", "/Fobuild\\.objs\\mruby_marshal_ext_x64\\windows\\x64\\release\\mruby-marshal\\src\\marshal.cpp.obj", "mruby-marshal\\src\\marshal.cpp"],
+  "file": "mruby-marshal\\src\\marshal.cpp"
+}]

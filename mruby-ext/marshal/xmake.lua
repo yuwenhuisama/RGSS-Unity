@@ -7,7 +7,7 @@ function common_settings()
     set_arch("x64")
     set_kind("shared")
 
-    add_includedirs("mruby-marshal-c/include/")
+    add_includedirs("mruby-marshal/include/")
     add_includedirs(mruby_dir .. "/build/host/include/")
     add_files("mruby-marshal-c/src/*.c")
 
@@ -30,9 +30,7 @@ target("mruby_marshal_ext_x64")
 
         add_files("export.def")
         set_basename("libmruby_marshal_ext_x64")
-        set_runtimes("MD")
-        add_links("Ws2_32.lib", "lib/libmruby_x64.lib")
-        add_ldflags("/OPT:REF", "/OPT:ICF")
+        add_links("lib/libmruby_x64.lib")
     elseif os_name == "linux" then
         common_settings()
 
