@@ -1,4 +1,6 @@
-﻿class RPG::Enemy::Action
+﻿require 'rpg/enemy'
+
+class RPG::Enemy::Action
   def initialize
     @skill_id = 1
     @condition_type = 0

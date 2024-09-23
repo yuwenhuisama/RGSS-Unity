@@ -1,10 +1,4 @@
-﻿require 'tone'
-require 'rpg/system.terms'
-require 'rpg/bgm'
-require 'rpg/me'
-require 'rpg/system.vehicle'
-
-class RPG::System
+﻿class RPG::System
   def initialize
     @game_title = ''
     @version_id = 0

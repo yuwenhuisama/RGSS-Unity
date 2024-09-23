@@ -10,6 +10,8 @@ using Object = UnityEngine.Object;
 
 namespace RGSSUnity.RubyClasses
 {
+    using UnityEngine.Networking;
+
     public class BitmapData : RubyData
     {
         public RenderTexture RenderTexture;
@@ -57,9 +59,22 @@ namespace RGSSUnity.RubyClasses
             var fileNameStr = filename.ToStringUnchecked()!;
             string filePath = Path.Combine(Application.streamingAssetsPath, fileNameStr);
 
-            // todo: use UnityWebRequest to retrieve data
-            var imgData = File.ReadAllBytes(filePath);
+            using UnityWebRequest www = UnityWebRequest.Get(filePath);
+            www.SendWebRequest();
 
+            while (!www.isDone)
+            {
+            }
+            
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                var errorCls = state.GetExceptionClass("RGSSError");
+                var exc = state.GenerateExceptionWithNewStr(errorCls, "Failed to load image data");
+                state.Raise(exc);
+                return state.RbNil;
+            }
+
+            var imgData = www.downloadHandler.data;
             var texture2D = new Texture2D(1, 1, TextureFormat.ARGB32, false, false)
             {
                 wrapMode = TextureWrapMode.Clamp

@@ -1,5 +1,4 @@
 ﻿require 'rpg/base_item'
-require 'rpg/base_item.feature'
 
 class RPG::Class < RPG::BaseItem
   def initialize

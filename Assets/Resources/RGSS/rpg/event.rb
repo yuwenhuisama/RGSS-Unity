@@ -1,6 +1,4 @@
-﻿require 'rpg/event.page'
-
-class RPG::Event
+﻿class RPG::Event
   def initialize(x, y)
     @id = 0
     @name = ''

@@ -1,7 +1,4 @@
 ﻿require 'rpg/base_item'
-require 'rpg/base_item.feature'
-require 'rpg/enemy.drop_item'
-require 'rpg/enemy.action'
 
 class RPG::Enemy < RPG::BaseItem
   def initialize

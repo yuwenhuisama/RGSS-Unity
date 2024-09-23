@@ -1,5 +1,4 @@
-﻿require 'color'
-require 'rpg/se'
+﻿require 'rpg/animation'
 
 class RPG::Animation::Timing
   def initialize

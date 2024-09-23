@@ -42,7 +42,7 @@ namespace RGSSUnity
             RubyClasses.UnityModule.Update();
         }
         
-        void OnDestroy()
+        void OnApplicationQuit()
         {
             RubyScriptManager.Instance.Destroy();
         }

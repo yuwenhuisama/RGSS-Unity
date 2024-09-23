@@ -1,4 +1,5 @@
-﻿class RPG::UsableItem::Effect
+﻿require 'rpg/usable_item'
+class RPG::UsableItem::Effect
   def initialize(code = 0, data_id = 0, value1 = 0, value2 = 0)
     @code = code
     @data_id = data_id

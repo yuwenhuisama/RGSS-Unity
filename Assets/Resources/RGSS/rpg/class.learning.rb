@@ -1,4 +1,6 @@
-﻿class RPG::Class::Learning
+﻿require 'rpg/class'
+
+class RPG::Class::Learning
   def initialize
     @level = 1
     @skill_id = 1

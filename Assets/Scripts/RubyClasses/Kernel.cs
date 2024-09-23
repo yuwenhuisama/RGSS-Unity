@@ -24,12 +24,22 @@ namespace RGSSUnity.RubyClasses
 
             kernel.DefineModuleMethod("msgbox", MsgBox, RbHelper.MRB_ARGS_ANY(), out func);
             keeper.Keep(func);
-            
+
             kernel.DefineModuleMethod("p", Print, RbHelper.MRB_ARGS_ANY(), out func);
             keeper.Keep(func);
 
             kernel.DefineModuleMethod("print", Print, RbHelper.MRB_ARGS_ANY(), out func);
             keeper.Keep(func);
+        }
+
+        public static bool IsScriptLoaded(string path)
+        {
+            return RequiredPath.Contains(path);
+        }
+        
+        public static void AddPath(string path)
+        {
+            RequiredPath.Add(path);
         }
 
         private static RbValue Require(RbState state, RbValue self, params RbValue[] args)

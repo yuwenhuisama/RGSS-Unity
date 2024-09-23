@@ -1,7 +1,4 @@
-﻿require 'rpg/event.page.condition'
-require 'rpg/event.page.graphics'
-require 'rpg/move_route'
-require 'rpg/event_command'
+﻿require 'rpg/event'
 
 class RPG::Event::Page
   def initialize

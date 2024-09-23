@@ -1,8 +1,4 @@
-﻿require 'table'
-require 'rpg/bgm'
-require 'rpg/bgs'
-
-class RPG::Map
+﻿class RPG::Map
   def initialize(width, height)
     @display_name = ''
     @tileset_id = 1

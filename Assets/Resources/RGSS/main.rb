@@ -1,4 +1,13 @@
-﻿def format_exc_string(e)
+﻿# This script is the entry of the RGSS3 scripts.
+# It loads the RMVA scripts and runs the main loop.
+# It also catches unhandled exceptions and notifies the native side.
+# It requires the RMVA scripts and the RMVA scripts require the RGSS3 scripts.
+
+$rmva_project_base_path = Unity.rmva_project_path
+$rgss_stop_flag = false
+$rtp_path = Unity.rtp_path
+
+def format_exc_string(e)
   exc_str = "Exception: #{e.message} \n"
   exc_str += "Backtrace: \n"
   e.backtrace.each do |line|
@@ -29,21 +38,6 @@ def read_scripts_and_run(file_path)
   main
 end
 
-def main
-  # Unity.run_scripts
-  
-  Unity.on_update = proc do
-    # to catch unhandled exceptions and notify native side
-    begin
-      ::Graphics.update
-      Input.update
-    rescue Exception => e
-      str = format_exc_string(e)
-      Unity.on_top_exception(str)
-    end
-  end
-end
-
 begin
   require 'kernel'
   require 'graphics'
@@ -55,8 +49,7 @@ begin
   require 'input'
   require 'audio'
 
-  base_path = Unity.rmva_project_path
-  sprite_file = File.join(base_path, "RMProject/Data/Scripts.rvdata2")
+  sprite_file = File.join($rmva_project_base_path, "RMProject/Data/Scripts.rvdata2")
   read_scripts_and_run sprite_file
 
 rescue Exception => e

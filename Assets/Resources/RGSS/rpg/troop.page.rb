@@ -1,5 +1,4 @@
-﻿require 'rpg/troop.page.condition'
-require 'rpg/event_command'
+﻿require 'rpg/troop'
 
 class RPG::Troop::Page
   def initialize

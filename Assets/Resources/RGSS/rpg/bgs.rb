@@ -1,5 +1,4 @@
 ﻿require 'rpg/audio_file'
-require 'audio'
 
 class RPG::BGS < RPG::AudioFile
   @@last = RPG::BGS.new

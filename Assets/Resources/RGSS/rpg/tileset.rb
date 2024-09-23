@@ -1,6 +1,4 @@
-﻿require 'table'
-
-class RPG::Tileset
+﻿class RPG::Tileset
   def initialize
     @id = 0
     @mode = 1

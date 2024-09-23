@@ -1,5 +1,4 @@
 ﻿require 'rpg/base_item'
-require 'rpg/usable_item.damage'
 
 class RPG::UsableItem < RPG::BaseItem
   def initialize

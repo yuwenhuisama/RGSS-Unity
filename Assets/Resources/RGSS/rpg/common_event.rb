@@ -1,6 +1,4 @@
-﻿require 'rpg/event_command'
-
-class RPG::CommonEvent
+﻿class RPG::CommonEvent
   def initialize
     @id = 0
     @name = ''

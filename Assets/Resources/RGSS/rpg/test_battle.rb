@@ -1,4 +1,6 @@
-﻿class RPG::System::TestBattler
+﻿require 'rpg/system'
+
+class RPG::System::TestBattler
   def initialize
     @actor_id = 1
     @level = 1

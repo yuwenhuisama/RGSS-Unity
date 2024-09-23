@@ -1,6 +1,4 @@
-﻿require 'rpg/troop.page'
-
-class RPG::Troop
+﻿class RPG::Troop
   def initialize
     @id = 0
     @name = ''

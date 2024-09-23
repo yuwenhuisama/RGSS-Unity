@@ -1,4 +1,6 @@
-﻿class RPG::Event::Page::Condition
+﻿require 'rpg/event.page'
+
+class RPG::Event::Page::Condition
   def initialize
     @switch1_valid = false
     @switch2_valid = false

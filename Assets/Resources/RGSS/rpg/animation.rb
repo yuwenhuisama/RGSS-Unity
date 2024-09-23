@@ -1,6 +1,4 @@
-﻿require 'rpg/animation.frame'
-
-class RPG::Animation
+﻿class RPG::Animation
   def initialize
     @id = 0
     @name = ''

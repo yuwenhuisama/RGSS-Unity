@@ -1,4 +1,6 @@
-﻿class RPG::Troop::Page::Condition
+﻿require 'rpg/troop.page'
+
+class RPG::Troop::Page::Condition
   def initialize
     @turn_ending = false
     @turn_valid = false

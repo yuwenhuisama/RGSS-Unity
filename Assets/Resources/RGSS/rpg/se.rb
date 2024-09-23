@@ -1,5 +1,4 @@
-﻿require 'audio'
-require 'rpg/audio_file'
+﻿require 'rpg/audio_file'
 
 class RPG::SE < RPG::AudioFile
   def play

@@ -1,4 +1,6 @@
-﻿class RPG::Enemy::DropItem
+﻿require 'rpg/enemy'
+
+class RPG::Enemy::DropItem
   def initialize
     @kind = 0
     @data_id = 1

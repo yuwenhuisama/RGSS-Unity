@@ -1,4 +1,6 @@
-﻿class RPG::System::Terms
+﻿require 'rpg/system'
+
+class RPG::System::Terms
   def initialize
     @basic = Array.new(8) {''}
     @params = Array.new(8) {''}

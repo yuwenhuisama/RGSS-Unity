@@ -1,6 +1,4 @@
-﻿require 'rpg/move_command'
-
-class RPG::MoveRoute
+﻿class RPG::MoveRoute
   def initialize
     @repeat = true
     @skippable = false

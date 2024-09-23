@@ -1,4 +1,6 @@
-﻿class RPG::Map::Encounter
+﻿require 'rpg/map'
+
+class RPG::Map::Encounter
   def initialize
     @troop_id = 1
     @weight = 10

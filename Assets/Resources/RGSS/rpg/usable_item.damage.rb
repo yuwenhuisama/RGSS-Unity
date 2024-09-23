@@ -1,4 +1,6 @@
-﻿class RPG::UsableItem::Damage
+﻿require 'rpg/usable_item'
+
+class RPG::UsableItem::Damage
   def initialize
     @type = 0
     @element_id = 0

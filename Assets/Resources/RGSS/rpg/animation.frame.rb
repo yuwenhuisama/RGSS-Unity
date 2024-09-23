@@ -1,4 +1,4 @@
-﻿require 'table'
+﻿require 'rpg/animation'
 
 class RPG::Animation::Frame
   def initialize

@@ -1,4 +1,4 @@
-﻿require 'rpg/bgm'
+﻿require 'rpg/system'
 
 class RPG::System::Vehicle
   def initialize

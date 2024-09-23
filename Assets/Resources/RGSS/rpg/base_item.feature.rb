@@ -1,4 +1,6 @@
-﻿class RPG::BaseItem::Feature
+﻿require 'rpg/base_item'
+
+class RPG::BaseItem::Feature
   def initialize(code = 0, data_id = 0, value = 0)
     @code = code
     @data_id = data_id

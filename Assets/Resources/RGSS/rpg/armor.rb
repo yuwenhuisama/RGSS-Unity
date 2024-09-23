@@ -1,5 +1,4 @@
 ﻿require 'rpg/equip_item'
-require 'rpg/base_item.feature.feature'
 
 class RPG::Armor < RPG::EquipItem
   def initialize

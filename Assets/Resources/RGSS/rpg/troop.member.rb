@@ -1,4 +1,6 @@
-﻿class RPG::Troop::Member
+﻿require 'rpg/troop'
+
+class RPG::Troop::Member
   def initialize
     @enemy_id = 1
     @x = 0
