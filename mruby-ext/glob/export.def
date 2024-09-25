@@ -1,0 +1,4 @@
+LIBRARY libmruby_dir_glob_ext.dll
+EXPORTS
+    mrb_mruby_dir_glob_gem_init
+    mrb_mruby_dir_glob_gem_final

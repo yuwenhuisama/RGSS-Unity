@@ -2,8 +2,8 @@ add_rules("mode.debug", "mode.releasedbg")
 
 local os_name = os.host()
 local mruby_dir = "E:/Projects/mruby-for-dotnet/mruby"
-local ext_base_name = "mruby_marshal_c"
-local gem_name = "mruby-marshal-c"
+local ext_base_name = "mruby_dir_glob"
+local gem_name = "mruby-dir-glob"
 
 function common_settings()
     set_arch("x64")

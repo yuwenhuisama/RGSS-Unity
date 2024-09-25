@@ -1,3 +1,15 @@
 [submodule "mruby-ext/marshal/mruby-marshal-c"]
 	path = mruby-ext/marshal/mruby-marshal-c
 	url = https://github.com/LanzaSchneider/mruby-marshal-c.git
+[submodule "mruby-ext/mruby-ext/glob/mruby-dir-glob"]
+	path = mruby-ext/mruby-ext/glob/mruby-dir-glob
+	url = https://github.com/gromnitsky/mruby-dir-glob.git
+[submodule "mruby-ext/glob/mruby-dir-glob"]
+	path = mruby-ext/glob/mruby-dir-glob
+	url = https://github.com/gromnitsky/mruby-dir-glob.git
+[submodule "mruby-ext/glob/mruby-onig-regexp"]
+	path = mruby-ext/glob/mruby-onig-regexp
+	url = https://github.com/mattn/mruby-onig-regexp.git
+[submodule "mruby-ext/regexp/mruby-onig-regexp"]
+	path = mruby-ext/regexp/mruby-onig-regexp
+	url = https://github.com/mattn/mruby-onig-regexp.git

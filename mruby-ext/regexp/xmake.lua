@@ -2,18 +2,19 @@ add_rules("mode.debug", "mode.releasedbg")
 
 local os_name = os.host()
 local mruby_dir = "E:/Projects/mruby-for-dotnet/mruby"
-local ext_base_name = "mruby_marshal_c"
-local gem_name = "mruby-marshal-c"
+local ext_base_name = "mruby_onig_regexp"
+local gem_name = "mruby-onig-regexp"
 
 function common_settings()
     set_arch("x64")
     set_kind("shared")
 
-    add_includedirs(gem_name .. "/include/")
     add_includedirs(mruby_dir .. "/build/host/include/")
+    add_includedirs("Onigmo/")
     add_files(gem_name .. "/src/*.c")
 
     add_defines("MRB_INT64", "MRB_NO_PRESYM")
+    add_defines("HAVE_ONIGMO_H")
 end
 
 function after_build_macos(target)
@@ -33,6 +34,7 @@ target(ext_base_name .. "_ext_x64")
         add_files("export.def")
         set_basename("lib" .. ext_base_name .. "_ext_x64")
         add_links("../lib/libmruby_x64.lib")
+        add_links("../lib/onigmo_s.lib")
     elseif os_name == "linux" then
         common_settings()
 
@@ -54,7 +56,7 @@ target(ext_base_name .. "_ext_x64")
             set_arch("arm64")
             add_links("../lib/libmruby_x64.dylib")
 
-                -- Combine into a universal binary
+            -- Combine into a universal binary
         target(ext_base_name .. "_ext_universal")
             set_kind("phony")
             add_deps(ext_base_name .. "_ext_x86_64", ext_base_name .. "_ext_arm64")

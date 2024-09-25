@@ -1,0 +1,4 @@
+LIBRARY libmruby_onig_regexp_ext.dll
+EXPORTS
+    mrb_mruby_onig_regexp_gem_init
+    mrb_mruby_onig_regexp_gem_final

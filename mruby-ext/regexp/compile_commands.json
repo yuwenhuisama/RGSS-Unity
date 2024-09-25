@@ -1,0 +1,6 @@
+[
+{
+  "directory": "E:\\Projects\\PhysTetris\\RMUnity\\mruby-ext\\regexp",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/IOnigmo", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/DHAVE_ONIGMO_H", "/Fobuild\\.objs\\mruby_onig_regexp_ext_x64\\windows\\x64\\release\\mruby-onig-regexp\\src\\mruby_onig_regexp.c.obj", "mruby-onig-regexp\\src\\mruby_onig_regexp.c"],
+  "file": "mruby-onig-regexp\\src\\mruby_onig_regexp.c"
+}]
