@@ -1,24 +1,20 @@
 ﻿require 'type_check_util'
-require 'color'
-require 'tone'
-require 'rect'
-require 'graphics'
 
 class Viewport
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(*args)
     if args.size == 0
-      @handler = Unity::Viewport.new_without_rect
+      @__handler__ = Unity::Viewport.new_without_rect
     elsif args.size == 1
       check_arguments(args, [Rect])
       rect, = args
-      @handler = Unity::Viewport.new_xyrw(rect.x, rect.y, rect.w. rect.h)
+      @__handler__ = Unity::Viewport.new_xyrw(rect.x, rect.y, rect.w. rect.h)
     elsif args.size == 4
       check_arguments(args, [Integer, Integer, Integer, Integer])
-      @handler = Unity::Viewport.new_xyrw(args[0], args[1], args[2], args[3])
+      @__handler__ = Unity::Viewport.new_xyrw(args[0], args[1], args[2], args[3])
     else
       raise ArgumentError.new("Invalid number of arguments")
     end
@@ -27,61 +23,61 @@ class Viewport
   def flash(color, duration)
     check_arguments([color, duration], [Color, [Integer, NilClass]])
     if color.nil?
-      @handler.flash(nil, duration)
+      @__handler__.flash(nil, duration)
     else
-      @handler.flash(color.handler, duration)
+      @__handler__.flash(color.__handler__, duration)
     end
   end
 
   [:dispose, :disposed?, :update].each do |method|
     define_method(method) do |*args|
-      @handler.send(method, *args)
+      @__handler__.send(method, *args)
     end
   end
 
   def color
-    Color.new(@handler.color)
+    Color.new(@__handler__.color)
   end
 
   def color=(value)
     check_arguments([value], [Color])
-    @handler.color = value.handler
+    @__handler__.color = value.__handler__
   end
 
   def tone
-    Tone.new(@handler.tone)
+    Tone.new(@__handler__.tone)
   end
 
   def tone=(tone)
     check_arguments([tone], [Tone])
-    @handler.tone = tone.handler
+    @__handler__.tone = tone.__handler__
   end
 
   def rect
-    Rect.new(@handler.rect)
+    Rect.new(@__handler__.rect)
   end
 
   def rect=(rect)
     check_arguments([rect], [Rect])
-    @handler.rect = rect.handler
+    @__handler__.rect = rect.__handler__
   end
 
   def eql?(other)
     if self == other
       true
     end
-    self.handler == other.handler
+    self.__handler__ == other.__handler__
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   [:z, :ox, :oy].each do |prop|
-    define_method(prop) { @handler.send(prop) }
+    define_method(prop) { @__handler__.send(prop) }
     define_method("#{prop}=") do |value|
       check_type(value, Integer)
-      @handler.send("#{prop}=", value)
+      @__handler__.send("#{prop}=", value)
     end
   end
 

@@ -1,74 +1,69 @@
 ﻿require 'type_check_util'
-require 'plane'
-require 'viewport'
-require 'bitmap'
-require 'color'
-require 'tone'
 
 class Plane
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(viewport = nil)
     check_type(viewport, [Viewport, NilClass])
     if viewport.nil?
-      @handler = Unity::Plane.new_with_viewport(Viewport::DEFAULT_VIEWPORT.handler)
+      @__handler__ = Unity::Plane.new_with_viewport(Viewport::DEFAULT_VIEWPORT.__handler__)
     else
-      @handler = Unity::Plane.new_with_viewport(@viewport.handler)
+      @__handler__ = Unity::Plane.new_with_viewport(@viewport.__handler__)
     end
   end
 
-  [:dispose, :disposed?].each { |method_name| define_method(method_name) { @handler.send(method_name) } }
+  [:dispose, :disposed?].each { |method_name| define_method(method_name) { @__handler__.send(method_name) } }
 
   def bitmap
-    Bitmap.new @handler.bitmap
+    Bitmap.new @__handler__.bitmap
   end
 
   def bitmap=(value)
     check_type(value, Bitmap)
-    @handler.bitmap = value.handler
+    @__handler__.bitmap = value.__handler__
   end
 
   def viewport
-    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.handler
+    if @__handler__.viewport == Viewport::DEFAULT_VIEWPORT.__handler__
       return nil
     end
-    Viewport.new @handler.viewport
+    Viewport.new @__handler__.viewport
   end
 
   def viewport=
     check_type(value, Viewport)
-    @handler.viewport = value.handler
+    @__handler__.viewport = value.__handler__
   end
 
   def color
-    Color.new @handler.color
+    Color.new @__handler__.color
   end
 
   def color=(value)
     check_type(value, Color)
-    @handler.color = value.handler
+    @__handler__.color = value.__handler__
   end
 
   def tone
-    Tone.new @handler.tone
+    Tone.new @__handler__.tone
   end
 
   def tone=(value)
     check_type(value, Tone)
-    @handler.tone = value.handler
+    @__handler__.tone = value.__handler__
   end
 
   def eql?(other)
     if self == other
       true
     end
-    self.handler == other.handler
+    self.__handler__ == other.__handler__
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   TYPE_CHECK_MAP = {
@@ -82,10 +77,10 @@ class Plane
   }
 
   TYPE_CHECK_MAP.each do |prop, type|
-    define_method(prop) { @handler.send(prop) }
+    define_method(prop) { @__handler__.send(prop) }
     define_method("#{prop}=") do |value|
       check_type(value, type)
-      @handler.send("#{prop}=", value)
+      @__handler__.send("#{prop}=", value)
     end
   end
 end

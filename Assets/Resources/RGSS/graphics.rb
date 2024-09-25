@@ -68,8 +68,8 @@ module Graphics
     Unity::Graphics.play_movie(filename)
   end
 
-  def self.transition(duration = 10, filename = "", vague = 40)
-    check_arguments([duration, filename, vague], [Integer, String, Integer])
+  def self.transition(duration = 10, filename = nil, vague = 40)
+    check_arguments([duration, filename, vague], [Integer, [String, NilClass], Integer])
     Unity::Graphics.transition(duration, filename, vague)
   end
 

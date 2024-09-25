@@ -1,27 +1,24 @@
 require 'type_check_util'
-require 'color'
-require 'rect'
-require 'font'
 
 class Bitmap
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(*args)
     if args.size == 1
       if args[0].is_a? Unity::Bitmap
-        @handler, = args
+        @__handler__, = args
       elsif args[0].is_a? String
         filename, = args
-        @handler = Unity::Bitmap.new_filename(filename)
+        @__handler__ = Unity::Bitmap.new_filename(filename)
       else
         raise TypeError, "Invalid argument type"
       end
     elsif args.size == 2
       check_arguments(args, [Integer, Integer])
       width, height = args
-      @handler = Unity::Bitmap.new_wh(width, height)
+      @__handler__ = Unity::Bitmap.new_wh(width, height)
     else
       raise ArgumentError, "Invalid number of arguments"
     end
@@ -31,12 +28,12 @@ class Bitmap
 
   def blt(x, y, src_bitmap, src_rect, opacity = 255)
     check_arguments([x, y, src_bitmap, src_rect, opacity], [Integer, Integer, Bitmap, Rect, Integer])
-    @handler.blt(x, y, src_bitmap.handler, src_rect.handler, opacity)
+    @__handler__.blt(x, y, src_bitmap.__handler__, src_rect.__handler__, opacity)
   end
 
   def stretch_blt(dest_rect, src_bitmap, src_rect, opacity = 255)
     check_arguments([dest_rect, src_bitmap, src_rect, opacity], [Rect, Bitmap, Rect, Integer])
-    @handler.stretch_blt(dest_rect.handler, src_bitmap.handler, src_rect.handler, opacity)
+    @__handler__.stretch_blt(dest_rect.__handler__, src_bitmap.__handler__, src_rect.__handler__, opacity)
   end
 
   def fill_rect(*args)
@@ -44,12 +41,12 @@ class Bitmap
       check_arugments(args, [Rect, Color])
       rect, color = args
 
-      @handler.fill_rect(rect.x, rect.y, rect.width, rect.height, color.handler)
+      @__handler__.fill_rect(rect.x, rect.y, rect.width, rect.height, color.__handler__)
     elsif args.size == 5
       check_arguments(args, [Integer, Integer, Integer, Integer, Color])
       x, y, width, height, color = args
 
-      @handler.fill_rect(x, y, width, height, color.handler)
+      @__handler__.fill_rect(x, y, width, height, color.__handler__)
     else
       raise ArgumentError, "Invalid number of arguments"
     end
@@ -63,7 +60,7 @@ class Bitmap
       check_arguments([vertical], [[TrueClass, FalseClass, NilClass]])
       vertical ||= false
 
-      @handler.gradient_fill_rect(rect.x, rect.y, rect.w. rect.h, color1.handler, color2.handler, vertical)
+      @__handler__.gradient_fill_rect(rect.x, rect.y, rect.w. rect.h, color1.__handler__, color2.__handler__, vertical)
     elsif args.size == 6 || args.size == 7
       check_arguments(args[0..5], [Integer, Integer, Integer, Integer, Color, Color])
       x, y, width, height, color1, color2, vertical = args
@@ -71,7 +68,7 @@ class Bitmap
       check_arguments([vertical], [[TrueClass, FalseClass, NilClass]])
       vertical ||= false
 
-      @handler.gradient_fill_rect(x, y, width, height, color1.handler, color2.handler, vertical)
+      @__handler__.gradient_fill_rect(x, y, width, height, color1.__handler__, color2.__handler__, vertical)
     else
       raise ArgumentError, "Invalid number of arguments"
     end
@@ -79,7 +76,7 @@ class Bitmap
 
   [:dispose, :disposed?, :clear, :blur].each do |method|
     define_method(method) do
-      @handler.send(method)
+      @__handler__.send(method)
     end
   end
 
@@ -88,12 +85,12 @@ class Bitmap
       check_arguments(args, [Rect])
       rect, = args
 
-      @handler.clear_rect(rect.x, rect.y, rect.w, rect.h)
+      @__handler__.clear_rect(rect.x, rect.y, rect.w, rect.h)
     elsif args.size == 4
       check_arguments(args, [Integer, Integer, Integer, Integer])
       x, y, width, height = args
 
-      @handler.clear_rect(x, y, width, height)
+      @__handler__.clear_rect(x, y, width, height)
     else
       raise ArgumentError, "Invalid number of arguments"
     end
@@ -102,18 +99,18 @@ class Bitmap
   def get_pixel(x, y)
     check_arguments([x, y], [Integer, Integer])
 
-    @handler.get_pixel(x, y)
+    Color.new @__handler__.get_pixel(x, y)
   end
 
   def set_pixel(x, y, color)
     check_arguments([x, y, color], [Integer, Integer, Color])
 
-    @handler.set_pixel(x, y, color.handler)
+    @__handler__.set_pixel(x, y, color.__handler__)
   end
 
   def radial_blur(angle, division)
     check_arguments([angle, division], [Integer, Integer])
-    @handler.radial_blur(angle, division)
+    @__handler__.radial_blur(angle, division)
   end
 
   def draw_text(*args)
@@ -127,7 +124,7 @@ class Bitmap
 
       check_arguments([align], [[Integer, NilClass]])
       align ||= 0
-      @handler.draw_text(x, y, width, height, str, align)
+      @__handler__.draw_text(x, y, width, height, str, align)
     elsif args.size == 2 || args.size == 3
       check_arguments(args[0..1], [Rect, Object])
       rect, str, align = args
@@ -138,7 +135,10 @@ class Bitmap
 
       check_arguments([align], [[Integer, NilClass]])
       align ||= 0
-      @handler.draw_text(rect.x, rect.y, rect.w, rect.h, str, align)
+
+      msgbox "align type: #{align}"
+      
+      @__handler__.draw_text(rect.x, rect.y, rect.width, rect.height, str, align)
     else
       raise ArgumentError, "Invalid number of arguments"
     end
@@ -146,46 +146,46 @@ class Bitmap
 
   def text_size(str)
     check_arguments([str], [String])
-    Rect.new @handler.text_size(str)
+    Rect.new @__handler__.text_size(str)
   end
 
   def hue_change(hue)
     check_arguments([hue], [Integer])
-    @handler.hue_change(hue)
+    @__handler__.hue_change(hue)
   end
 
   def rect
-    Rect.new @handler.rect
+    Rect.new @__handler__.rect
   end
 
   def rect=(rect)
     check_arguments([rect], [Rect])
-    @handler.rect = rect.handler
+    @__handler__.rect = rect.__handler__
   end
 
   def font
-    Font.new @handler.font
+    Font.new @__handler__.font
   end
 
   def font=(font)
     check_arguments([font], [Font])
-    @handler.font = font.handler
+    @__handler__.font = font.__handler__
   end
 
   def eql?(other)
     if self == other
       true
     end
-    self.handler == other.handler
+    self.__handler__ == other.__handler__
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   [:width, :height].each do |method|
     define_method(method) do
-      @handler.send(method)
+      @__handler__.send(method)
     end
   end
 end

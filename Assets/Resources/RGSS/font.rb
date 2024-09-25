@@ -1,10 +1,9 @@
-require 'color'
 require 'type_check_util'
 
 class Font
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   class << self
     DEFAULT_TYPE_CHECK_MAP = {
@@ -59,40 +58,63 @@ class Font
     outline: [TrueClass, FalseClass],
   }
 
-  def initialize(name, size = Font.default_size)
-    if name.is_a? String
-      @handler = Unity::Font.new_ns([name], size)
-    elsif name.is_a? Array
-      name.each { |v| check_type(v, String) }
-      @handler = Unity::Font.new_ns(name, size)
+  def initialize(*args)
+    if args.size == 0
+      name = [Font.default_name]
+      size = Font.default_size
+      @__handler__ = Unity::Font.new_ns(name, size)
+    elsif args.length == 1
+      arg, = args
+      if arg.is_a? Unity::Font
+        @__handler__ = arg
+      elsif arg is_a? String
+        name = [arg]
+        size = Font.default_size
+        @__handler__ = Unity::Font.new_ns(name, size)
+      elsif arg is_a? Array
+        name.each { |v| check_type(v, String) }
+        name = arg
+        size = Font.default_size
+        @__handler__ = Unity::Font.new_ns(name, size)
+      end
+    elsif args.length == 2
+      name, size = args
+      if name.is_a? Array
+        name.each { |v| check_type(v, String) }
+      else
+        check_type name, String
+        name = [name]
+      end
+      check_type size, Integer
+      @__handler__ = Unity::Font.new_ns(name, size)
     else
       raise TypeError, "Invalid argument type"
     end
 
-    @handler.bold = Font.default_bold
-    @handler.italic = Font.default_italic
-    @handler.shadow = Font.default_shadow
-    @handler.outline = Font.default_outline
-    @handler.color = Font.default_color.handler
-    @handler.out_color = Font.default_out_color.handler
+    @__handler__.bold = Font.default_bold
+    @__handler__.italic = Font.default_italic
+    @__handler__.shadow = Font.default_shadow
+    @__handler__.outline = Font.default_outline
+    @__handler__.color = Font.default_color.__handler__
+    @__handler__.out_color = Font.default_out_color.__handler__
   end
 
   def color
-    Color.new @handler.color
+    Color.new @__handler__.color
   end
 
   def color=(value)
     check_type(value, Color)
-    @handler.color = value.handler
+    @__handler__.color = value.__handler__
   end
 
   def out_color
-    Color.new @handler.out_color
+    Color.new @__handler__.out_color
   end
 
   def out_color=(value)
     check_type(value, Color)
-    @handler.out_color = value.handler
+    @__handler__.out_color = value.__handler__
   end
 
   def name
@@ -114,26 +136,26 @@ class Font
     unless other.is_a? Font
       return false
     end
-    
-    if self == other || self.handler == other.handler
+
+    if self == other || self.__handler__ == other.__handler__
       return true
     end
 
-    self.name == other.name && self.size == other.size && 
-      self.bold == other.bold && self.italic == other.italic && 
-      self.shadow == other.shadow && self.outline == other.outline && 
+    self.name == other.name && self.size == other.size &&
+      self.bold == other.bold && self.italic == other.italic &&
+      self.shadow == other.shadow && self.outline == other.outline &&
       self.color == other.color && self.out_color == other.out_color
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   TYPE_CHECK_MAP.each do |prop, type|
-    define_method(prop) { @handler.send(prop) }
+    define_method(prop) { @__handler__.send(prop) }
     define_method("#{prop}=") do |val|
       check_type(val, type)
-      @handler.send("#{prop}=", val)
+      @__handler__.send("#{prop}=", val)
     end
   end
 

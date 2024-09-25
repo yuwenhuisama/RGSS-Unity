@@ -3,21 +3,23 @@
 class Tone
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(*args)
-    if args.size == 1
+    if args.size == 0
+      @__handler__ = Unity::Tone.new_rgbg(0, 0, 0, 0)
+    elsif args.size == 1
       check_arguments(args, [Unity::Tone])
       tone, = args
-      @handler, = Unity::Tone.new_rgbg t.red, t.green, t.blue, t.gray
+      @__handler__, = tone
     elsif args.size == 3
-      check_arguments(args, [Integer, Integer, Integer])
+      check_arguments(args, [[Integer, Float], [Integer, Float], [Integer, Float]])
       r, g, b = args
-      @handler = Unity::Tone.new_rgbg r, g, b, 0
+      @__handler__ = Unity::Tone.new_rgbg r, g, b, 0
     elsif args.size == 4
-      check_arguments(args, [Integer, Integer, Integer, Integer])
+      check_arguments(args, [[Integer, Float], [Integer, Float], [Integer, Float], [Integer, Float]])
       r, g, b, gray = args
-      @handler = Unity::Tone.new_rgbg r, g, b, gray
+      @__handler__ = Unity::Tone.new_rgbg r, g, b, gray
     else
       raise ArgumentError.new("Invalid number of arguments")
     end
@@ -29,10 +31,10 @@ class Tone
       tone, = args
       self.set(tone.red, tone.green, tone.blue, tone.gray)
     elsif args.size == 4
-      check_arguments(args, [Integer, Integer, Integer, Integer])
+      check_arguments(args, [[Integer, Float], [Integer, Float], [Integer, Float], [Integer, Float]])
 
       r, g, b, gray = args
-      @handler.set_rgbg(r, g, b, gray)
+      @__handler__.set_rgbg(r, g, b, gray)
     else
       raise ArgumentError.new("Invalid number of arguments")
     end
@@ -43,7 +45,7 @@ class Tone
       return false
     end
     
-    if self == other || self.handler == other.handler
+    if self == other || self.__handler__ == other.__handler__
       true
     end
     
@@ -51,14 +53,22 @@ class Tone
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
+  end
+
+  def _dump(d = 0)
+    [self.red, self.green, self.blue, self.gray].pack('d4')
+  end
+
+  def self._load(s)
+    Tone.new(*s.unpack('d4'))
   end
 
   [:red, :green, :blue, :gray].each do |prop|
-    define_method(prop) { @handler.send(prop) }
+    define_method(prop) { @__handler__.send(prop) }
     define_method("#{prop}=") do |value|
-      check_type(value, Integer)
-      @handler.send("#{prop}=", value)
+      check_type(value, [Integer, Float])
+      @__handler__.send("#{prop}=", value)
     end
   end
 end

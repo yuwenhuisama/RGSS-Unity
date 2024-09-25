@@ -3,12 +3,11 @@ using MRuby.Library;
 using MRuby.Library.Language;
 using MRuby.Library.Mapper;
 using UnityEngine;
+using System;
+using System.Runtime.InteropServices;
 
 namespace RGSSUnity
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     public class RubyScriptManager
     {
         public static readonly RubyScriptManager Instance = new();
@@ -16,16 +15,26 @@ namespace RGSSUnity
         public RbState State { get; private set; }
         public RbClass UnityModule { get; private set; }
         private RbContext context;
+        private RbCompiler compiler;
 
-        [DllImport("libmruby_marshal_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        [DllImport("libmruby_marshal_c_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void mrb_mruby_marshal_c_gem_init(IntPtr mrb);
+
+        [DllImport("libmruby_dir_glob_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern void mrb_mruby_dir_glob_gem_init(IntPtr mrb);
+
+        [DllImport("libmruby_onig_regexp_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern void mrb_mruby_onig_regexp_gem_init(IntPtr mrb);
 
         public void Initialize()
         {
             this.State = Ruby.Open();
             this.context = this.State.NewCompileContext();
+            this.compiler = this.State.NewCompiler();
 
             mrb_mruby_marshal_c_gem_init(this.State.NativeHandler);
+            mrb_mruby_onig_regexp_gem_init(this.State.NativeHandler);
+            mrb_mruby_dir_glob_gem_init(this.State.NativeHandler);
 
             this.UnityModule = this.State.DefineModule("Unity");
             this.State.DefineModule("RPG");
@@ -39,24 +48,27 @@ namespace RGSSUnity
         public void LoadMainScript()
         {
             const string fileName = "main";
-            var res = this.LoadScriptInResources(fileName);
+            var res = this.LoadScriptInResources(fileName, out var _);
             this.State.GcRegister(res);
         }
 
-        public RbValue LoadScriptInResources(string fileName)
+        public RbValue LoadScriptInResources(string fileName, out bool error)
         {
             var scriptAsset = Resources.Load<TextAsset>($"RGSS/{fileName}");
 
+            error = false;
             if (scriptAsset != null)
             {
                 string scriptContent = scriptAsset.text;
                 Debug.Log($"Loaded resource script content: RGSS/{fileName}");
 
-                using var compiler = this.State.NewCompilerWithCodeString(scriptContent, this.context);
                 this.context.SetFilename($"{fileName}.rb");
-                compiler.SetFilename($"{fileName}.rb");
+                this.compiler.SetFilename($"{fileName}.rb");
 
-                return compiler.LoadString(scriptContent, this.context);
+                var result = this.State.Protect((_, _, _) =>
+                    this.compiler.LoadString(scriptContent, this.context), ref error, out var func);
+
+                return result;
             }
 
             Debug.LogError("Failed to load script: " + fileName);
@@ -77,10 +89,10 @@ namespace RGSSUnity
                 }
 
                 Kernel.AddPath(scriptName);
-                var res = LoadScriptInResources(scriptName);
-                if (res.IsException)
+                var res = LoadScriptInResources(scriptName, out error);
+
+                if (error)
                 {
-                    error = true;
                     return res;
                 }
             }
@@ -89,23 +101,29 @@ namespace RGSSUnity
             return this.State.RbNil;
         }
 
-        public RbValue LoadScriptContentWithFileName(string fileName, string scriptContent)
+        public RbValue LoadScriptContentWithFileName(string fileName, string scriptContent, out bool error)
         {
+            error = false;
+
             if (string.IsNullOrEmpty(scriptContent.Trim()))
             {
                 return this.State.RbNil;
             }
-            
+
             Debug.Log($"Loaded rmva script content {fileName}");
 
-            using var compiler = this.State.NewCompilerWithCodeString(scriptContent, this.context);
             this.context.SetFilename($"{fileName}.rmvascript");
-            compiler.SetFilename($"{fileName}.rmvascript");
-            return compiler.LoadString(scriptContent, this.context);
+            this.compiler.SetFilename($"{fileName}.rmvascript");
+
+            var result = this.State.Protect((_, _, _) =>
+                this.compiler.LoadString(scriptContent, this.context), ref error, out var func);
+
+            return result;
         }
 
         public void Destroy()
         {
+            this.compiler.Dispose();
             this.context.Dispose();
             Ruby.Close(this.State);
         }

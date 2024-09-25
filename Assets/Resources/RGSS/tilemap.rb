@@ -1,73 +1,71 @@
 ﻿require 'type_check_util'
-require 'table'
-require 'viewport'
 
 class Tilemap
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(viewport = nil)
-    @handler = Unity::Tilemap.new(viewport)
+    @__handler__ = Unity::Tilemap.new(viewport)
   end
 
   [:dispose, :disposed?, :update].each do |method|
-    define_method(method) { @handler.send(method) }
+    define_method(method) { @__handler__.send(method) }
   end
 
   def bitmaps
-    @handler.bitmaps.map { |bitmap| Unity::Bitmap.new(bitmap) }
+    @__handler__.bitmaps.map { |bitmap| Unity::Bitmap.new(bitmap) }
   end
 
   def map_data
-    @handler.map_data
+    @__handler__.map_data
   end
 
   def map_data=(map_data)
     check_arguments([map_data], [Table])
-    @handler.map_data = map_data.handler
+    @__handler__.map_data = map_data.__handler__
   end
 
   def flash_data
-    @handler.flash_data
+    @__handler__.flash_data
   end
 
   def flash_data=(flash_data)
     check_arguments([flash_data], [Table])
-    @handler.flash_data = flash_data.handler
+    @__handler__.flash_data = flash_data.__handler__
   end
 
   def flags
-     @handler.flags
+     @__handler__.flags
   end
 
   def flags=(flags)
     check_arguments([flags], [Table])
-    @handler.flags = flags.handler
+    @__handler__.flags = flags.__handler__
   end
 
   def viewport
-    @handler.viewport
+    @__handler__.viewport
   end
 
   def viewport=(viewport)
     check_arguments([viewport], [Viewport])
-    @handler.viewport = viewport.handler
+    @__handler__.viewport = viewport.__handler__
   end
 
   def eql?(other)
     if self == other
       true
     end
-    self.handler == other.handler
+    self.__handler__ == other.__handler__
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   [:ox, :oy, :visible].each do |prop|
-    define_method(prop) { @handler.send(prop) }
-    define_method("#{prop}=") { |value| @handler.send("#{prop}=", value) }
+    define_method(prop) { @__handler__.send(prop) }
+    define_method("#{prop}=") { |value| @__handler__.send("#{prop}=", value) }
   end
 end

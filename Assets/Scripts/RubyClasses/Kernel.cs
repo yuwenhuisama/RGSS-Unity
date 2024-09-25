@@ -36,7 +36,7 @@ namespace RGSSUnity.RubyClasses
         {
             return RequiredPath.Contains(path);
         }
-        
+
         public static void AddPath(string path)
         {
             RequiredPath.Add(path);
@@ -55,7 +55,14 @@ namespace RGSSUnity.RubyClasses
                 return state.RbNil;
             }
 
-            return RubyScriptManager.Instance.LoadScriptInResources(pathStr);
+            var res = RubyScriptManager.Instance.LoadScriptInResources(pathStr, out var error);
+
+            if (error)
+            {
+                state.Raise(res);
+            }
+
+            return res;
         }
 
         private static RbValue MsgBox(RbState state, RbValue self, params RbValue[] args)
@@ -64,7 +71,7 @@ namespace RGSSUnity.RubyClasses
             {
                 var str = arg.CallMethod("to_s");
                 var info = str.ToStringUnchecked();
-                UnityEngine.Debug.Log(info);
+                RGSSLogger.Log(info);
             }
             return state.RbNil;
         }

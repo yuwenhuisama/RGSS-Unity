@@ -136,10 +136,12 @@ namespace RGSSUnity.RubyClasses
         public BitmapData ContentsBitmapData;
         public BitmapData WindowSkinBitmapData;
 
+        public ToneData ToneData;
+
         public RectData CursorRect;
 
-        public int X;
-        public int Y;
+        public float X;
+        public float Y;
         public int Z = 100;
         public int Ox;
         public int Oy;
@@ -178,20 +180,21 @@ namespace RGSSUnity.RubyClasses
     {
         private static readonly int Region_ = Shader.PropertyToID("_Region");
         private static readonly int Scale_ = Shader.PropertyToID("_Scale");
+        private static readonly int Tone_ = Shader.PropertyToID("_Tone");
         private const float CursorFlashDeltaOpacity = 1.0f / 60.0f;
 
         [RbClassMethod("new_xywh")]
         public static RbValue NewXywh(RbState state, RbValue self, RbValue x, RbValue y, RbValue width, RbValue height, RbValue viewport)
         {
-            var rx = x.ToIntUnchecked();
-            var ry = y.ToIntUnchecked();
+            var rx = x.IsInt ? x.ToIntUnchecked() : x.ToFloatUnchecked();
+            var ry = y.IsInt ? y.ToIntUnchecked() : y.ToFloatUnchecked();
             var rw = width.ToIntUnchecked();
             var rh = height.ToIntUnchecked();
 
             var windowData = new WindowData(state)
             {
-                X = (int)rx,
-                Y = (int)ry,
+                X = (float)rx,
+                Y = (float)ry,
                 Width = (int)rw,
                 Height = (int)rh,
                 Z = 100,
@@ -206,6 +209,10 @@ namespace RGSSUnity.RubyClasses
                 ContentOpacity = 255,
                 BackOpacity = 196,
                 Openness = 255,
+                ToneData = new ToneData(state)
+                {
+                    Tone = new Vector4(0.0f, 0.0f, 0.0f, 0.0f),
+                },
             };
 
             var viewportData = viewport.GetRDataObject<ViewportData>();
@@ -214,12 +221,14 @@ namespace RGSSUnity.RubyClasses
             var windowObject = new GameObject("Window Object");
             windowObject.tag = "RGSSWindow";
             windowObject.transform.SetParent(viewportData.ViewportObject.transform);
+            windowObject.transform.SetSiblingIndex(0);
             windowObject.transform.position = new Vector3(0, 0, 1);
             windowData.WindowBackgroundGameObject = windowObject;
             windowObject.SetActive(false);
 
             var renderer = windowObject.AddComponent<SpriteRenderer>();
             windowData.WindowBackgroundSpriteRenderer = renderer;
+            renderer.material = new Material(Shader.Find("Custom/WindowBackgroundShader"));
 
             var borderObject = new GameObject("Border Object");
             borderObject.transform.SetParent(windowObject.transform);
@@ -308,8 +317,8 @@ namespace RGSSUnity.RubyClasses
         public static RbValue Move(RbState state, RbValue self, RbValue x, RbValue y, RbValue width, RbValue height)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.X = (int)x.ToIntUnchecked();
-            data.Y = (int)y.ToIntUnchecked();
+            data.X = (float)(x.IsInt ? x.ToIntUnchecked() : x.ToFloatUnchecked());
+            data.Y = (float)(x.IsInt ? y.ToIntUnchecked() : x.ToFloatUnchecked());
             data.Width = (int)width.ToIntUnchecked();
             data.Height = (int)height.ToIntUnchecked();
             return state.RbNil;
@@ -497,7 +506,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue XSet(RbState state, RbValue self, RbValue x)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.X = (int)x.ToIntUnchecked();
+            data.X = (float)(x.IsInt ? x.ToIntUnchecked() : x.ToFloatUnchecked());
             return state.RbNil;
         }
 
@@ -512,7 +521,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue YSet(RbState state, RbValue self, RbValue y)
         {
             var data = self.GetRDataObject<WindowData>();
-            data.Y = (int)y.ToIntUnchecked();
+            data.Y = (float)(y.IsInt ? y.ToIntUnchecked() : y.ToFloatUnchecked());
             return state.RbNil;
         }
 
@@ -682,6 +691,34 @@ namespace RGSSUnity.RubyClasses
             return state.RbNil;
         }
 
+        [RbInstanceMethod("tone")]
+        public static RbValue GetTone(RbState state, RbValue self)
+        {
+            var data = self.GetRDataObject<WindowData>();
+            var tone = data.ToneData.Tone;
+            return Tone.CreateTone(
+                state,
+                (int)(tone.x * 255),
+                (int)(tone.y * 255),
+                (int)(tone.z * 255),
+                (int)(tone.w * 255)
+            );
+        }
+
+        [RbInstanceMethod("tone=")]
+        public static RbValue SetTone(RbState state, RbValue self, RbValue tone)
+        {
+            var data = self.GetRDataObject<WindowData>();
+            var toneData = tone.GetRDataObject<ToneData>();
+            data.ToneData.Tone = new Vector4(
+                toneData.Tone.x / 255.0f,
+                toneData.Tone.y / 255.0f,
+                toneData.Tone.z / 255.0f,
+                toneData.Tone.w / 255.0f
+            );
+            return state.RbNil;
+        }
+
         public static void Render(WindowData data)
         {
             if (data.WindowSkinBitmapData is { Dirty: true })
@@ -712,9 +749,11 @@ namespace RGSSUnity.RubyClasses
             var opacity = data.Opacity / 255.0f;
             var color1 = data.WindowBackgroundSpriteRenderer.color;
             color1.a = data.Opacity / 255.0f * opacity;
-            data.WindowBackgroundSpriteRenderer.color = color1;
             data.WindowBorderSpriteRenderer.color = color1;
+            data.WindowBackgroundSpriteRenderer.color = color1;
             data.WindowBackgroundTiledSpriteRenderer.color = color1;
+
+            data.WindowBackgroundSpriteRenderer.material.SetVector(Tone_, data.ToneData.Tone);
 
             data.WindowBackgroundTiledSpriteRenderer.material.SetVector(
                 Scale_,
@@ -722,9 +761,11 @@ namespace RGSSUnity.RubyClasses
                     (float)(data.Height - 2) / data.WindowSkinData.BackgroundTexture2.height,
                     2.0f / data.WindowSkinData.BackgroundTexture2.width,
                     2.0f / data.WindowSkinData.BackgroundTexture2.height));
+            data.WindowBackgroundTiledSpriteRenderer.material.SetVector(Tone_, data.ToneData.Tone);
 
             data.WindowBackgroundSpriteRenderer.size = new Vector2(data.Width - 2, (data.Height - 2) * (data.Openness / 255.0f));
             data.WindowBorderSpriteRenderer.size = new Vector2(data.Width, data.Height * (data.Openness / 255.0f));
+
 
             var scale = data.WindowBackgroundTiledSpriteRenderer.transform.localScale;
             scale.y = data.Openness / 255.0f;

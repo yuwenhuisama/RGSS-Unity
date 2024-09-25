@@ -105,6 +105,7 @@ namespace RGSSUnity.RubyClasses
             var viewportData = viewport.GetRDataObject<ViewportData>();
 
             data.PlaneObject.transform.SetParent(viewportData.ViewportObject.transform);
+            data.PlaneObject.transform.SetSiblingIndex(0);
 
             self.SetInstanceVariable("@viewport", viewport);
             return viewport;

@@ -21,7 +21,7 @@ namespace RGSSUnity.RubyClasses
     public static class Table
     {
         [RbClassMethod("new_xyz")]
-        public static RbValue New(RbState state, RbValue self, RbValue xsize, RbValue ysize, RbValue zsize)
+        private static RbValue New(RbState state, RbValue self, RbValue xsize, RbValue ysize, RbValue zsize)
         {
             var xSize = xsize.ToIntUnchecked();
             var ySize = ysize.ToIntUnchecked();
@@ -29,21 +29,19 @@ namespace RGSSUnity.RubyClasses
 
             if (xSize < 0 || ySize < 0 || zSize < 0)
             {
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Invalid size");
-                state.Raise(exc);
+                state.RaiseRGSSError("Invalid size");
                 return state.RbNil;
             }
 
             var tableData = CreateTableData(state, xSize, ySize, zSize);
 
-            var cls = state.GetClass("Table");
+            var cls = self.ToClass();
             var res = cls.NewObjectWithRData(tableData);
             return res;
         }
 
         [RbInstanceMethod("resize")]
-        public static RbValue Resize(RbState state, RbValue self, RbValue xsize, RbValue ysize, RbValue zsize)
+        private static RbValue Resize(RbState state, RbValue self, RbValue xsize, RbValue ysize, RbValue zsize)
         {
             var xSize = xsize.ToIntUnchecked();
             var ySize = ysize.ToIntUnchecked();
@@ -51,9 +49,7 @@ namespace RGSSUnity.RubyClasses
 
             if (xSize < 0 || ySize < 0 || zSize < 0)
             {
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Invalid size");
-                state.Raise(exc);
+                state.RaiseRGSSError("Invalid size");
                 return state.RbNil;
             }
 
@@ -77,33 +73,104 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbInstanceMethod("get_x")]
-        public static RbValue GetX(RbState state, RbValue self, RbValue x)
+        private static RbValue GetX(RbState state, RbValue self, RbValue x)
         {
             var tableData = self.GetRDataObject<TableData>();
-            var unboxedX = state.UnboxInt(x);
+            var unboxedX = x.ToIntUnchecked();
+            if (unboxedX > tableData.XSize)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
             var data = tableData.Data[unboxedX];
-            return ((int)(data)).ToValue(state);
+            return ((int)data).ToValue(state);
         }
 
         [RbInstanceMethod("get_xy")]
-        static RbValue GetXY(RbState state, RbValue self, RbValue x, RbValue y)
+        private static RbValue GetXY(RbState state, RbValue self, RbValue x, RbValue y)
         {
             var tableData = self.GetRDataObject<TableData>();
-            var unboxedX = state.UnboxInt(x);
-            var unboxedY = state.UnboxInt(y);
-            var data = tableData.Data[unboxedX + unboxedY * tableData.XSize];
-            return ((int)(data)).ToValue(state);
+            var unboxedX = x.ToIntUnchecked();
+            var unboxedY = y.ToIntUnchecked();
+            var index = unboxedX + unboxedY * tableData.XSize;
+            if (index > tableData.Data.Length)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
+            
+            var data = tableData.Data[index];
+            return ((int)data).ToValue(state);
         }
 
         [RbInstanceMethod("get_xyz")]
-        static RbValue GetXYZ(RbState state, RbValue self, RbValue x, RbValue y, RbValue z)
+        private static RbValue GetXYZ(RbState state, RbValue self, RbValue x, RbValue y, RbValue z)
         {
             var tableData = self.GetRDataObject<TableData>();
-            var unboxedX = state.UnboxInt(x);
-            var unboxedY = state.UnboxInt(y);
-            var unboxedZ = state.UnboxInt(z);
-            var data = tableData.Data[unboxedX + unboxedY * tableData.XSize + unboxedZ * tableData.XSize * tableData.YSize];
-            return ((int)(data)).ToValue(state);
+            var unboxedX = x.ToIntUnchecked();
+            var unboxedY = y.ToIntUnchecked();
+            var unboxedZ = z.ToIntUnchecked();
+
+            var index = unboxedX + unboxedY * tableData.XSize + unboxedZ * tableData.XSize * tableData.YSize;
+            
+            if (index > tableData.Data.Length)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
+            
+            var data = tableData.Data[index];
+            return ((int)data).ToValue(state);
+        }
+        
+        [RbInstanceMethod("set_x")]
+        private static RbValue SetX(RbState state, RbValue self, RbValue x, RbValue value)
+        {
+            var tableData = self.GetRDataObject<TableData>();
+            var unboxedX = x.ToIntUnchecked();
+            if (unboxedX > tableData.XSize)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
+            var unboxedValue = value.ToIntUnchecked();
+            tableData.Data[unboxedX] = (Int16)unboxedValue;
+            return state.RbNil;
+        }
+        
+        [RbInstanceMethod("set_xy")]
+        private static RbValue SetXY(RbState state, RbValue self, RbValue x, RbValue y, RbValue value)
+        {
+            var tableData = self.GetRDataObject<TableData>();
+            var unboxedX = x.ToIntUnchecked();
+            var unboxedY = y.ToIntUnchecked();
+            var index = unboxedX + unboxedY * tableData.XSize;
+            if (index > tableData.Data.Length)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
+            var unboxedValue = value.ToIntUnchecked();
+            tableData.Data[index] = (Int16)unboxedValue;
+            return state.RbNil;
+        }
+        
+        [RbInstanceMethod("set_xyz")]
+        private static RbValue SetXYZ(RbState state, RbValue self, RbValue x, RbValue y, RbValue z, RbValue value)
+        {
+            var tableData = self.GetRDataObject<TableData>();
+            var unboxedX = x.ToIntUnchecked();
+            var unboxedY = y.ToIntUnchecked();
+            var unboxedZ = z.ToIntUnchecked();
+            var index = unboxedX + unboxedY * tableData.XSize + unboxedZ * tableData.XSize * tableData.YSize;
+            if (index > tableData.Data.Length)
+            {
+                state.RaiseRGSSError("Index out of bounds");
+                return state.RbNil;
+            }
+            var unboxedValue = value.ToIntUnchecked();
+            tableData.Data[index] = (Int16)unboxedValue;
+            return state.RbNil;
         }
 
         private static TableData CreateTableData(RbState state, long xSize, long ySize, long zSize)

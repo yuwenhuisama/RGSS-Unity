@@ -3,12 +3,12 @@
 namespace RGSSUnity.RubyClasses
 {
     using MRuby.Library.Language;
-    using UnityEngine;
 
     [RbModule("Audio", "Unity")]
     public static class Audio
     {
         private static GameAudioManager Instance_;
+        private static RbValue ExceptionHandler_;
 
         [RbInitEntryPoint]
         public static void Init(RbClass cls)
@@ -24,14 +24,22 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbModuleMethod("bgm_play")]
-        public static RbValue BgmPlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue pos)
+        public static RbValue BgmPlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue pos, RbValue onLoadedProc)
         {
             var volumnVal = volume.ToIntUnchecked() / 100.0f;
             var pitchVal = pitch.ToIntUnchecked() / 100.0f;
             var posVal = pos.IsInt ? pos.ToIntUnchecked() : (float)pos.ToFloatUnchecked();
             var filenameVal = filename.ToStringUnchecked();
 
-            Instance_.Play(GameAudioManager.PlayType.Bgm, filenameVal, volumnVal, pitchVal, posVal);
+            state.GcRegister(onLoadedProc);
+            Instance_.Play(GameAudioManager.PlayType.Bgm, filenameVal, volumnVal, pitchVal, posVal, succ =>
+            {
+                if (!succ && !onLoadedProc.IsNil)
+                {
+                    onLoadedProc.CallMethod("call");
+                }
+                state.GcUnregister(onLoadedProc);
+            });
             return state.RbNil;
         }
 
@@ -57,14 +65,23 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbModuleMethod("bgs_play")]
-        public static RbValue BgsPlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue pos)
+        public static RbValue BgsPlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue pos, RbValue onLoadedProc)
         {
             var volumnVal = volume.ToIntUnchecked() / 100.0f;
             var pitchVal = pitch.ToIntUnchecked() / 100.0f;
             var posVal = pos.IsInt ? pos.ToIntUnchecked() : (float)pos.ToFloatUnchecked();
             var filenameVal = filename.ToStringUnchecked();
 
-            Instance_.Play(GameAudioManager.PlayType.Bgs, filenameVal, volumnVal, pitchVal, posVal);
+            state.GcRegister(onLoadedProc);
+            Instance_.Play(GameAudioManager.PlayType.Bgs, filenameVal, volumnVal, pitchVal, posVal, succ =>
+            {
+                if (!succ && !onLoadedProc.IsNil)
+                {
+                    onLoadedProc.CallMethod("call");
+                }
+                state.GcUnregister(onLoadedProc);
+            });
+
             return state.RbNil;
         }
 
@@ -90,13 +107,22 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbModuleMethod("me_play")]
-        public static RbValue MePlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch)
+        public static RbValue MePlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue onLoadedProc)
         {
             var volumnVal = volume.ToIntUnchecked() / 100.0f;
             var pitchVal = pitch.ToIntUnchecked() / 100.0f;
             var filenameVal = filename.ToStringUnchecked();
 
-            Instance_.Play(GameAudioManager.PlayType.Me, filenameVal, volumnVal, pitchVal, 0);
+            state.GcRegister(onLoadedProc);
+            Instance_.Play(GameAudioManager.PlayType.Me, filenameVal, volumnVal, pitchVal, 0, succ =>
+            {
+                if (!succ && !onLoadedProc.IsNil)
+                {
+                    onLoadedProc.CallMethod("call");
+                }
+                state.GcUnregister(onLoadedProc);
+            });
+
             return state.RbNil;
         }
 
@@ -116,12 +142,21 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbModuleMethod("se_play")]
-        public static RbValue SePlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch)
+        public static RbValue SePlay(RbState state, RbValue self, RbValue filename, RbValue volume, RbValue pitch, RbValue onLoadedProc)
         {
             var volumnVal = volume.ToIntUnchecked() / 100.0f;
             var pitchVal = pitch.ToIntUnchecked() / 100.0f;
             var filenameVal = filename.ToStringUnchecked();
-            Instance_.Play(GameAudioManager.PlayType.Se, filenameVal, volumnVal, pitchVal, 0);
+
+            state.GcRegister(onLoadedProc);
+            Instance_.Play(GameAudioManager.PlayType.Se, filenameVal, volumnVal, pitchVal, 0, succ =>
+            {
+                if (!succ && !onLoadedProc.IsNil)
+                {
+                    onLoadedProc.CallMethod("call");
+                }
+                state.GcUnregister(onLoadedProc);
+            });
             return state.RbNil;
         }
 
@@ -129,6 +164,18 @@ namespace RGSSUnity.RubyClasses
         public static RbValue SeStop(RbState state, RbValue self)
         {
             Instance_.Stop(GameAudioManager.PlayType.Se);
+            return state.RbNil;
+        }
+
+        [RbClassMethod("__set_exception_handler__")]
+        public static RbValue SetExceptionHandler(RbState state, RbValue self, RbValue handler)
+        {
+            if (ExceptionHandler_ != null)
+            {
+                state.GcUnregister(ExceptionHandler_);
+            }
+            ExceptionHandler_ = handler;
+            state.GcRegister(handler);
             return state.RbNil;
         }
     }

@@ -2,12 +2,11 @@
 using MRuby.Library.Mapper;
 using RGSSUnity.Components;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using SpriteRenderer = UnityEngine.SpriteRenderer;
 
 namespace RGSSUnity.RubyClasses
 {
-    using System;
-    using Object = UnityEngine.Object;
 
     public class SpriteData : RubyData
     {
@@ -82,19 +81,17 @@ namespace RGSSUnity.RubyClasses
                 SpriteObject = new GameObject("sprite"),
                 Z = 1,
                 Visible = true,
-            };
-
-            data.ToneData = new ToneData(state)
-            {
-                Red = 0,
-                Green = 0,
-                Blue = 0,
-                Gray = 0,
-            };
-
-            data.ColorData = new ColorData(state)
-            {
-                Color = UnityEngine.Color.clear
+                ToneData = new ToneData(state)
+                {
+                    Red = 0,
+                    Green = 0,
+                    Blue = 0,
+                    Gray = 0,
+                },
+                ColorData = new ColorData(state)
+                {
+                    Color = UnityEngine.Color.clear
+                },
             };
 
             var spriteObject = data.SpriteObject;
@@ -102,11 +99,17 @@ namespace RGSSUnity.RubyClasses
 
             var viewportData = viewport.GetRDataObject<ViewportData>();
             spriteObject.transform.SetParent(viewportData.ViewportObject.transform);
+            spriteObject.transform.SetSiblingIndex(0);
+
+            // var rectTransform = spriteObject.AddComponent<RectTransform>();
+            // rectTransform.pivot = new Vector2(0.0f, 1.0f);
+            // rectTransform.anchorMin = new Vector2(0.0f, 0.0f);
+            // rectTransform.anchorMax = new Vector2(1.0f, 1.0f);
 
             var renderer = spriteObject.AddComponent<SpriteRenderer>();
             renderer.material = new Material(SpriteShader);
             data.SpriteRenderer = renderer;
-            
+
             spriteObject.SetActive(false);
 
             var dataComp = spriteObject.AddComponent<SpriteDataComponent>();
@@ -659,7 +662,7 @@ namespace RGSSUnity.RubyClasses
             }
 
             data.SpriteRenderer.sortingOrder = data.Z;
-            
+
             SetShaderProperties(data);
         }
 
@@ -684,7 +687,7 @@ namespace RGSSUnity.RubyClasses
             RubyClasses.Bitmap.RenderTextureToTexture2D(tmpRenderTex, dest);
             RenderTexture.ReleaseTemporary(tmpRenderTex);
         }
-        
+
         private static void SetShaderProperties(SpriteData data)
         {
             // todo: cache the sprite data and check if need to update the shader properties

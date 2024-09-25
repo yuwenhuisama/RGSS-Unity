@@ -8,15 +8,13 @@
   end
 
   def load_data(filename)
-    file_full_path = File.join($rmva_project_base_path, "RMProject/Data/Scripts.rvdata2")
-    File.open(file_full_path, "rb") do |f|
-      obj = Marshal.load(f)
-    end
-    obj
+    file_full_path = File.join($rmva_project_base_path, "RMProject", filename)
+    f = File.open(file_full_path, "rb")
+    Marshal.load(f)
   end
 
   def save_data(obj, filename)
-    file_full_path = File.join($rmva_project_base_path, "RMProject/Data/Scripts.rvdata2")
+    file_full_path = File.join($rmva_project_base_path, "RMProject", filename)
     File.open(file_full_path, "wb") do |f|
       Marshal.dump(obj, f)
     end

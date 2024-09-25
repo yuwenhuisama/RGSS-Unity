@@ -1,99 +1,98 @@
 ﻿require 'type_check_util'
-require 'bitmap'
-require 'rect'
-require 'viewport'
-require 'color'
-require 'tone'
 
 class Sprite
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(viewport = nil)
     if viewport.nil?
-      @handler = Unity::Sprite.new_with_viewport(Viewport::DEFAULT_VIEWPORT.handler)
+      @__handler__ = Unity::Sprite.new_with_viewport(Viewport::DEFAULT_VIEWPORT.__handler__)
     else
-      @handler = Unity::Sprite.new_with_viewport(viewport.handler)
+      @__handler__ = Unity::Sprite.new_with_viewport(viewport.__handler__)
     end
   end
 
   def flash(color, duration)
     check_arguments([color, duration], [[Color, NilClass], Integer])
     if color.nil?
-      @handler.flash(nil, duration)
+      @__handler__.flash(nil, duration)
     else
-      @handler.flash(color.handler, duration)
+      @__handler__.flash(color.__handler__, duration)
     end
   end
 
   [:dispose, :disposed?, :update, :width, :height].each do |method_name|
-    define_method(method_name) { @handler.send(method_name) }
+    define_method(method_name) { @__handler__.send(method_name) }
   end
 
   def bitmap
-    Bitmap.new @handler.bitmap
+    Bitmap.new @__handler__.bitmap
   end
 
   def bitmap=(bitmap)
     check_arguments([bitmap], [[Bitmap, NilClass]])
-    @handler.bitmap = bitmap.handler
+    if bitmap.nil?
+      @__handler__.bitmap = nil
+      return
+    end
+    @__handler__.bitmap = bitmap.__handler__
   end
 
   def src_rect
-    Rect.new @handler.src_rect
+    Rect.new @__handler__.src_rect
   end
 
   def src_rect=(rect)
     check_arguments([rect], [Rect])
-    @handler.src_rect = rect.handler
+    @__handler__.src_rect = rect.__handler__
   end
 
   def viewport
-    if @handler.viewport == Viewport::DEFAULT_VIEWPORT.handler
+    if @__handler__.viewport == Viewport::DEFAULT_VIEWPORT.__handler__
       return nil
     end
-    Viewport.new @handler.viewport
+    Viewport.new @__handler__.viewport
   end
 
   def viewport=(viewport)
     check_arguments([viewport], [[Viewport, NilClass]])
     if viewport.nil?
-      @handler.viewport = Viewport::DEFAULT_VIEWPORT.handler
+      @__handler__.viewport = Viewport::DEFAULT_VIEWPORT.__handler__
     else
-      @handler.viewport = viewport.handler
+      @__handler__.viewport = viewport.__handler__
     end
   end
 
   def color
-    Color.new @handler.color
+    Color.new @__handler__.color
   end
 
   def color=(color)
     check_arguments([color], [Color])
-    @handler.color = color.handler
+    @__handler__.color = color.__handler__
   end
 
   def tone
-    Tone.new @handler.tone
+    Tone.new @__handler__.tone
   end
 
   def tone=(tone)
     check_arguments([tone], [Tone])
-    @handler.tone = tone.handler
+    @__handler__.tone = tone.__handler__
   end
 
   def opacity=(opacity)
     check_arguments([opacity], [Integer])
-    @handler.opacity = opacity.clamp(0, 255)
+    @__handler__.opacity = opacity.clamp(0, 255)
   end
 
   def opacity
-    @handler.opacity
+    @__handler__.opacity
   end
 
   def blend_type
-    @handler.blend_type
+    @__handler__.blend_type
   end
 
   def blend_type=(blend_type)
@@ -103,18 +102,18 @@ class Sprite
       raise ArgumentError.new("Invalid blend type #{blend_type}")
     end
 
-    @handler.blend_type = blend_type
+    @__handler__.blend_type = blend_type
   end
 
   def eql?(other)
     if self == other
       true
     end
-    self.handler == other.handler
+    self.__handler__ == other.__handler__
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
   TYPE_CHECK_MAP = {
@@ -140,7 +139,7 @@ class Sprite
    :angle, :wave_amp, :wave_length,
    :wave_speed, :wave_phase, :mirror,
    :bush_depth, :bush_opacity, :opacity].each do |prop|
-    define_method(prop) { @handler.send(prop) }
-    define_method("#{prop}=") { |value| @handler.send("#{prop}=", value) }
+    define_method(prop) { @__handler__.send(prop) }
+    define_method("#{prop}=") { |value| @__handler__.send("#{prop}=", value) }
   end
 end

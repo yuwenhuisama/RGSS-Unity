@@ -8,12 +8,14 @@ namespace RGSSUnity
 {
     using System.Collections.Generic;
     using NAudio.Wave;
+    using RubyClasses;
+    using Unity.VisualScripting;
 
     public class GameAudioManager
     {
         internal enum PlayType
         {
-            Bgm,
+            Bgm = 0,
             Bgs,
             Me,
             Se
@@ -50,7 +52,7 @@ namespace RGSSUnity
             this.startCoroutineFn = startCoroutineFn;
         }
 
-        internal void Play(PlayType type, string filename, float volume, float pitch, float pos)
+        internal void Play(PlayType type, string filename, float volume, float pitch, float pos, Action<bool> onLoadedFn)
         {
             var source = this.GetSource(type);
 
@@ -61,6 +63,7 @@ namespace RGSSUnity
                 source.pitch = pitch;
                 source.time = pos;
                 source.Play();
+                onLoadedFn.Invoke(true);
                 return;
             }
 
@@ -68,23 +71,33 @@ namespace RGSSUnity
 
             if (extension == ".wma")
             {
-                this.startCoroutineFn(LoadWmaFileAndConvertToClipWithWebRequest(filename, PlayClip));
+                this.startCoroutineFn(LoadWmaFileAndConvertToClipWithWebRequest(filename, PlayClip, onLoadedFn));
             }
-            else if (extension == ".ogg" || extension == ".wav" || extension == ".mp3")
+            else if (extension is ".ogg" or ".wav" or ".mp3")
             {
-                var audioType = extension switch
+                var audioType = AudioType.OGGVORBIS;
+                switch (extension)
                 {
-                    ".ogg" => AudioType.OGGVORBIS,
-                    ".wav" => AudioType.WAV,
-                    ".mp3" => AudioType.MPEG,
-                    _ => throw new ArgumentOutOfRangeException(nameof(extension), extension, null),
-                };
+                    case ".ogg":
+                        audioType = AudioType.OGGVORBIS;
+                        break;
+                    case ".wav":
+                        audioType = AudioType.WAV;
+                        break;
+                    case ".mp3":
+                        audioType = AudioType.MPEG;
+                        break;
+                    default:
+                        break;
+                }
 
-                this.startCoroutineFn(LoadAudioClipWithWebRequest(filename, audioType, PlayClip));
+                this.startCoroutineFn(LoadAudioClipWithWebRequest(filename, audioType, PlayClip, onLoadedFn));
             }
             else
             {
-                throw new NotSupportedException($"Unsupported audio file {filename} with audio type {extension}");
+                onLoadedFn.Invoke(false);
+                var e = new NotSupportedException($"Unsupported audio file {filename} with audio type {extension}");
+                RGSSLogger.LogError(e.Message);
             }
 
             void PlayClip(AudioClip clip)
@@ -124,63 +137,64 @@ namespace RGSSUnity
             audioSource.volume = startVolume; // Reset volume to initial value
         }
 
-        private static IEnumerator LoadAudioClipWithWebRequest(string audioFileName, AudioType audioType, Action<AudioClip> callbackFn)
+        private static IEnumerator LoadAudioClipWithWebRequest(string audioFileName, AudioType audioType, Action<AudioClip> callbackFn, Action<bool> onLoadedFn)
         {
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, audioFileName);
+            
             using UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, audioType);
             yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError(www.error);
+                onLoadedFn.Invoke(false);
+                yield break;
             }
-            else
-            {
-                var clip = DownloadHandlerAudioClip.GetContent(www);
-                callbackFn(clip);
-            }
+
+            var clip = DownloadHandlerAudioClip.GetContent(www);
+            onLoadedFn.Invoke(true);
+            callbackFn(clip);
         }
 
-        private static IEnumerator LoadWmaFileAndConvertToClipWithWebRequest(string audioFileName, Action<AudioClip> callbackFn)
+        private static IEnumerator LoadWmaFileAndConvertToClipWithWebRequest(string audioFileName, Action<AudioClip> callbackFn, Action<bool> onLoadedFn)
         {
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, audioFileName);
             using UnityWebRequest www = UnityWebRequest.Get(path);
             www.downloadHandler = new DownloadHandlerBuffer();
             yield return www.SendWebRequest();
 
-            if (www.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError(www.error);
+                onLoadedFn.Invoke(false);
+                yield break;
             }
-            else
+
+            byte[] rawData = www.downloadHandler.data;
+            using var memoryStream = new System.IO.MemoryStream(rawData);
+            using var reader = new StreamMediaFoundationReader(memoryStream);
+            var sampleProvider = reader.ToSampleProvider();
+
+            var audioBuffer = reader.WaveFormat.BitsPerSample switch
             {
-                byte[] rawData = www.downloadHandler.data;
-                using var memoryStream = new System.IO.MemoryStream(rawData);
-                using var reader = new StreamMediaFoundationReader(memoryStream);
-                var sampleProvider = reader.ToSampleProvider();
+                16 => new float[reader.Length / 2],
+                32 => new float[reader.Length / 4],
+                24 => new float[reader.Length / 3],
+                8 => new float[reader.Length],
+                _ => throw new NotSupportedException($"Unsupported bit depth {reader.WaveFormat.BitsPerSample}")
+            };
 
-                var audioBuffer = reader.WaveFormat.BitsPerSample switch
-                {
-                    16 => new float[reader.Length / 2],
-                    32 => new float[reader.Length / 4],
-                    24 => new float[reader.Length / 3],
-                    8 => new float[reader.Length],
-                    _ => throw new NotSupportedException($"Unsupported bit depth {reader.WaveFormat.BitsPerSample}")
-                };
+            int samplesRead = sampleProvider.Read(audioBuffer, 0, audioBuffer.Length);
 
-                int samplesRead = sampleProvider.Read(audioBuffer, 0, audioBuffer.Length);
+            AudioClip audioClip = AudioClip.Create(
+                "ConvertedClip",
+                samplesRead,
+                reader.WaveFormat.Channels,
+                reader.WaveFormat.SampleRate,
+                false);
+            audioClip.SetData(audioBuffer, 0);
 
-                AudioClip audioClip = AudioClip.Create(
-                    "ConvertedClip",
-                    samplesRead,
-                    reader.WaveFormat.Channels,
-                    reader.WaveFormat.SampleRate,
-                    false);
-                audioClip.SetData(audioBuffer, 0);
-
-                callbackFn(audioClip);
-            }
-        }
+            onLoadedFn.Invoke(true);
+            callbackFn(audioClip);
+        }  
 
         private AudioSource GetSource(PlayType type) => type switch
         {

@@ -86,11 +86,11 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
-    <Compile Include="Assets\Scripts\RubyClasses\RubyDataStore.cs" />
     <Compile Include="Assets\Scripts\RubyClasses\Kernel.cs" />
     <Compile Include="Assets\Scripts\Components\PlaneDataComponent.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\RubyClasses\Viewport.cs" />
+    <Compile Include="Assets\Scripts\RGSSLogger.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\RubyScriptImporter.cs" />
     <Compile Include="Assets\Scripts\Components\VieportDataComponent.cs" />
@@ -101,6 +101,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
     <Compile Include="Assets\Scripts\GameRenderManager.cs" />
     <Compile Include="Assets\Scripts\RubyClasses\Window.cs" />
+    <Compile Include="Assets\Scripts\RubyClasses\RubyExtension.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
@@ -115,6 +116,7 @@
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Unity - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\Packages\NAudio.Core.2.2.1\lib\netstandard2.0\NAudio.Core.xml" />
+    <None Include="Assets\Shaders\WindowBackgroundShader.shader" />
     <None Include="Assets\Packages\NAudio.Wasapi.2.2.1\lib\netstandard2.0\NAudio.Wasapi.xml" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Oswald-Bold - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Roboto-Bold - AFL.txt" />

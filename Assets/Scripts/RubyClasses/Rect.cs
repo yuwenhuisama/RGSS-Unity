@@ -54,7 +54,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue GetX(RbState state, RbValue self)
         {
             var rectData = self.GetRDataObject<RectData>();
-            return rectData.Rect.x.ToValue(state);
+            return ((int)rectData.Rect.x).ToValue(state);
         }
 
         [RbInstanceMethod("x=")]
@@ -71,7 +71,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue GetY(RbState state, RbValue self)
         {
             var rectData = self.GetRDataObject<RectData>();
-            return rectData.Rect.y.ToValue(state);
+            return ((int)rectData.Rect.y).ToValue(state);
         }
 
         [RbInstanceMethod("y=")]
@@ -83,14 +83,14 @@ namespace RGSSUnity.RubyClasses
             return state.RbNil;
         }
 
-        [RbInstanceMethod("w")]
+        [RbInstanceMethod("width")]
         public static RbValue GetW(RbState state, RbValue self)
         {
             var rectData = self.GetRDataObject<RectData>();
-            return rectData.Rect.width.ToValue(state);
+            return ((int)rectData.Rect.width).ToValue(state);
         }
 
-        [RbInstanceMethod("w=")]
+        [RbInstanceMethod("width=")]
         public static RbValue SetW(RbState state, RbValue self, RbValue w)
         {
             var wVal = w.ToIntUnchecked();
@@ -99,14 +99,14 @@ namespace RGSSUnity.RubyClasses
             return state.RbNil;
         }
 
-        [RbInstanceMethod("h")]
+        [RbInstanceMethod("height")]
         public static RbValue GetH(RbState state, RbValue self)
         {
             var rectData = self.GetRDataObject<RectData>();
-            return rectData.Rect.height.ToValue(state);
+            return ((int)rectData.Rect.height).ToValue(state);
         }
 
-        [RbInstanceMethod("h=")]
+        [RbInstanceMethod("height=")]
         public static RbValue SetH(RbState state, RbValue self, RbValue h)
         {
             var hVal = h.ToIntUnchecked();

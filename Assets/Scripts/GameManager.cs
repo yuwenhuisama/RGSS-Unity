@@ -40,6 +40,7 @@ namespace RGSSUnity
         void Update()
         {
             RubyClasses.UnityModule.Update();
+            RGSSLogger.Instance.Update();
         }
         
         void OnApplicationQuit()

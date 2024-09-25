@@ -14,6 +14,7 @@ namespace RGSSUnity.RubyClasses
         public GameObject ViewportObject;
         public long LogicX;
         public long LogicY;
+        public long Z;
         public long Ox;
         public long Oy;
 
@@ -259,7 +260,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue GetZ(RbState state, RbValue self)
         {
             var data = self.GetRDataObject<ViewportData>();
-            return ((long)data.ViewportObject.transform.position.z).ToValue(state);
+            return data.Z.ToValue(state);
         }
 
         [RbInstanceMethod("z=")]
@@ -267,7 +268,7 @@ namespace RGSSUnity.RubyClasses
         {
             var data = self.GetRDataObject<ViewportData>();
             var zVal = z.ToIntUnchecked();
-            data.ViewportObject.transform.position = new Vector3(data.ViewportObject.transform.position.x, data.ViewportObject.transform.position.y, zVal);
+            data.Z = zVal;
             return state.RbNil;
         }
 
@@ -328,6 +329,7 @@ namespace RGSSUnity.RubyClasses
 
             var viewportObject = new GameObject("viewport");
             viewportObject.transform.SetParent(GameObject.Find("Viewports").transform);
+            viewportObject.transform.SetSiblingIndex(0);
 
             var renderer = viewportObject.AddComponent<SpriteRenderer>();
             var viewportDataComp = viewportObject.AddComponent<ViewportDataComponent>();
@@ -338,6 +340,11 @@ namespace RGSSUnity.RubyClasses
 
             renderer.material = new Material(Shader.Find("Custom/ViewportShader"));
             renderer.sprite = sprite;
+
+            // var rectTransform = viewportObject.AddComponent<RectTransform>();
+            // rectTransform.pivot = new Vector2(0.0f, 1.0f);
+            // rectTransform.anchorMin = new Vector2(0.0f, 0.0f);
+            // rectTransform.anchorMax = new Vector2(1.0f, 1.0f);
 
             var data = new ViewportData(state)
             {
@@ -354,6 +361,7 @@ namespace RGSSUnity.RubyClasses
                 ViewportObject = viewportObject,
                 LogicX = vx,
                 LogicY = vy,
+                Z = 1,
             };
 
             viewportDataComp.ViewportData = data;

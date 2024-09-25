@@ -6,6 +6,7 @@ namespace RGSSUnity.RubyClasses
 {
     using System;
     using System.IO;
+    using UnityEngine.Networking;
     using File = UnityEngine.Windows.File;
     using Object = UnityEngine.Object;
 
@@ -215,7 +216,14 @@ namespace RGSSUnity.RubyClasses
             FadeState = FadeState.None;
             FromBrightness_ = brightness;
 
+            if (filename.IsNil)
+            {
+                // return FadeIn(state, self, duration);
+                return state.RbNil;
+            }
+            
             var transFileName = filename.ToStringUnchecked()!;
+            
             var vagueVal = vague.ToIntUnchecked();
             FadeDuration_ = duration.ToIntUnchecked();
             RemainDuration_ = FadeDuration_;
@@ -237,14 +245,27 @@ namespace RGSSUnity.RubyClasses
             // load transition texture
             TransitionRenderTex_ = new Texture2D(1, 1, TextureFormat.ARGB32, false, false);
             var filePath = Path.Combine(Application.streamingAssetsPath, transFileName);
-            var bytes = File.ReadAllBytes(filePath);
+            
+            using UnityWebRequest www = UnityWebRequest.Get(filePath);
+            www.SendWebRequest();
 
+            while (!www.isDone)
+            {
+            }
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                RGSSLogger.LogError($"Failed to load image data from {filePath} :{www.error}");
+                state.RaiseRGSSError("Failed to load image data, file not found");
+                return state.RbNil;
+            }
+
+            var bytes = www.downloadHandler.data;
+            
             if (!TransitionRenderTex_.LoadImage(bytes))
             {
-                Debug.LogError($"Failed to load transition texture: {filePath}");
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Failed to load image data");
-                state.Raise(exc);
+                RGSSLogger.LogError($"Failed to load transition texture: {filePath}");
+                state.RaiseRGSSError("Failed to load image data, invalid image data");
                 return state.RbNil;
             }
 

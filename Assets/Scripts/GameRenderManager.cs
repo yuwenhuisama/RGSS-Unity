@@ -77,8 +77,8 @@ namespace RGSSUnity
                 this.renderCamera.targetTexture = viewportTex;
 
                 // put viewport object start from left-top and render
-                viewport.transform.position = new Vector3(-(viewportTex.width / 2.0f), viewportTex.height / 2.0f, 1);
-                viewport.transform.Translate(new Vector3(-viewportData.Ox, viewportData.Oy, 0));
+                viewport.position = new Vector3(-(viewportTex.width / 2.0f), viewportTex.height / 2.0f, viewportData.Z);
+                viewport.Translate(new Vector3(-viewportData.Ox, viewportData.Oy, 0));
 
                 var renderers = new List<GameObject>();
 
@@ -90,24 +90,25 @@ namespace RGSSUnity
                     if (sprite.gameObject.CompareTag("RGSSSprite"))
                     {
                         var data = sprite.GetComponent<SpriteDataComponent>().SpriteData;
-                        if (data.Visible)
+
+                        if (!data.Visible)
                         {
                             continue;
                         }
 
                         sprite.gameObject.SetActive(true);
-                        sprite.transform.position = new Vector3(
-                            data.X - viewportTex.width / 2.0f,
-                            -data.Y + viewportTex.height / 2.0f,
+                        sprite.localPosition = new Vector3(
+                            data.X,
+                            -data.Y,
                             data.Z);
 
                         if (data.RotatedAngle != 0)
                         {
-                            sprite.transform.RotateAround(sprite.transform.position, Vector3.forward, data.RotatedAngle);
+                            sprite.RotateAround(sprite.position, Vector3.forward, data.RotatedAngle);
                             data.RotatedAngle = 0;
                         }
 
-                        sprite.transform.Translate(-data.Ox * sprite.transform.localScale.x, data.Oy * sprite.transform.localScale.y, 0);
+                        sprite.Translate(-data.Ox * sprite.localScale.x, data.Oy * sprite.localScale.y, data.Z);
                         RubyClasses.Sprite.Render(data);
                     }
                     else if (sprite.gameObject.CompareTag("RGSSPlane"))
@@ -119,9 +120,9 @@ namespace RGSSUnity
                         }
 
                         sprite.gameObject.SetActive(true);
-                        sprite.transform.position = new Vector3(
-                            -viewportTex.width / 2.0f,
-                            viewportTex.height / 2.0f,
+                        sprite.localPosition = new Vector3(
+                            0,
+                            0,
                             data.Z);
                         RubyClasses.Plane.Render(data);
                     }
@@ -136,9 +137,9 @@ namespace RGSSUnity
 
                         var openness = data.Openness;
                         var offsetY = data.Height * (1.0f - openness / 255.0f);
-                        sprite.transform.position = new Vector3(
-                            data.X - viewportTex.width / 2.0f,
-                            -data.Y + viewportTex.height / 2.0f - offsetY / 2,
+                        sprite.localPosition = new Vector3(
+                            data.X,
+                            -data.Y - offsetY / 2,
                             data.Z);
                         RubyClasses.Window.Render(data);
                     }
@@ -157,7 +158,7 @@ namespace RGSSUnity
                 Bitmap.RenderTextureToTexture2D(viewportTex, viewportRenderer.sprite.texture);
 
                 // put viewport renderer to real position
-                viewport.transform.position = new Vector3(-Screen.width / 2.0f + vx, Screen.height / 2.0f - vy, 1);
+                viewport.position = new Vector3(-Screen.width / 2.0f + vx, Screen.height / 2.0f - vy, 999);
             }
 
             this.renderCamera.targetTexture = this.MainRenderTexture;

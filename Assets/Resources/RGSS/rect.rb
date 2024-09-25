@@ -3,17 +3,19 @@
 class Rect
   include TypeCheckUtil
 
-  attr_reader :handler
+  attr_reader :__handler__
 
   def initialize(*args)
-    if args.size == 1
+    if args.size == 0
+      @__handler__ = Unity::Rect.new_xywh(0, 0, 0, 0)
+    elsif args.size == 1
       check_arguments(args, [Unity::Rect])
-      h, = args
-      @handler, = Unity::Rect.new_xywh(h.x, h.y, h.w, h.h)
+      r, = args
+      @__handler__, = r
     elsif args.size == 4
       check_arguments(args, [Integer, Integer, Integer, Integer])
       x, y, w, h = args
-      @handler = Unity::Rect.new_xywh(x, y, w, h)
+      @__handler__ = Unity::Rect.new_xywh(x, y, w, h)
     else
       raise ArgumentError.new("Invalid number of arguments")
     end
@@ -24,7 +26,7 @@ class Rect
       check_arguments(args, [Rect])
       rect, = args
 
-      self.set_xywh(rect.x, rect.y, rect.w, rect.h)
+      @__handler__.set_xywh(rect.x, rect.y, rect.width, rect.height)
     elsif args.size == 4
       check_arguments(args, [Integer, Integer, Integer, Integer])
 
@@ -35,31 +37,39 @@ class Rect
   end
 
   def empty
-    self.x, self.y, self.w, self.h = 0, 0, 0, 0
+    self.x, self.y, self.width, self.height = 0, 0, 0, 0
   end
 
   def eql?(other)
     unless other.is_a?(Rect)
       return false
     end
-    if self == other || self.handler == other.handler
+    if self == other || self.__handler__ == other.__handler__
       return true
     end
-    self.x == other.x && self.y == other.y && self.w == other.w && self.h == other.h
+    self.x == other.x && self.y == other.y && self.width == other.width && self.height == other.height
   end
 
   def hash
-    @handler.hash
+    @__handler__.hash
   end
 
-  [:x, :y, :w, :h].each do |prop|
+  def _dump(d = 0)
+    [self.x, self.y, self.width, self.height].pack('l4')
+  end
+
+  def self._load(s)
+    Rect.new(*s.unpack('l4'))
+  end
+
+  [:x, :y, :width, :height].each do |prop|
     define_method(prop) do
-      @handler.send(prop)
+      @__handler__.send(prop)
     end
 
     define_method("#{prop}=") do |value|
       check_type(value, Integer)
-      @handler.send("#{prop}=", value)
+      @__handler__.send("#{prop}=", value)
     end
   end
 end

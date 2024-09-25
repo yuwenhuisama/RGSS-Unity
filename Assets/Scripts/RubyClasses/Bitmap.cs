@@ -5,12 +5,12 @@ using MRuby.Library.Language;
 using MRuby.Library.Mapper;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using File = UnityEngine.Windows.File;
 using Object = UnityEngine.Object;
 
 namespace RGSSUnity.RubyClasses
 {
-    using UnityEngine.Networking;
 
     public class BitmapData : RubyData
     {
@@ -20,9 +20,29 @@ namespace RGSSUnity.RubyClasses
         public FontData FontData;
         public bool Dirty;
         public bool Tex2DDirty;
-
+        public GameObject TextMeshProObject;
+        public TextMeshPro TextMeshPro;
+        
         public BitmapData(RbState state) : base(state)
         {
+        }
+        
+        ~BitmapData()
+        {
+            if (RenderTexture)
+            {
+                Object.Destroy(RenderTexture);
+            }
+
+            if (Texture2D)
+            {
+                Object.Destroy(Texture2D);
+            }
+
+            if (TextMeshProObject)
+            {
+                Object.Destroy(TextMeshProObject);
+            }
         }
     }
 
@@ -58,6 +78,7 @@ namespace RGSSUnity.RubyClasses
         {
             var fileNameStr = filename.ToStringUnchecked()!;
             string filePath = Path.Combine(Application.streamingAssetsPath, fileNameStr);
+            RGSSLogger.Log($"Load image: {fileNameStr}");
 
             using UnityWebRequest www = UnityWebRequest.Get(filePath);
             www.SendWebRequest();
@@ -65,12 +86,10 @@ namespace RGSSUnity.RubyClasses
             while (!www.isDone)
             {
             }
-            
+
             if (www.result != UnityWebRequest.Result.Success)
             {
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Failed to load image data");
-                state.Raise(exc);
+                state.RaiseRGSSError("Failed to load image data, file not found");
                 return state.RbNil;
             }
 
@@ -82,9 +101,7 @@ namespace RGSSUnity.RubyClasses
 
             if (!texture2D.LoadImage(imgData))
             {
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Failed to load image data");
-                state.Raise(exc);
+                state.RaiseRGSSError("Failed to load image data, invalid image data");
                 return state.RbNil;
             }
 
@@ -505,7 +522,7 @@ namespace RGSSUnity.RubyClasses
             var fontData = data.FontData;
             var textStr = text.ToString();
 
-            GenerateTextMeshProObject(textStr, fontData, 0, 0, out _, out var textMeshPro);
+            GenerateTextMeshProObject(data, textStr, fontData, 0, 0, 0, out _, out var textMeshPro);
 
             // Calculate the size of the rendered text
             var rect = Rect.CreateRect(
@@ -518,12 +535,14 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbInstanceMethod("draw_text")]
-        public static RbValue DrawText(RbState state, RbValue self, RbValue x, RbValue y, RbValue w, RbValue h, RbValue text)
+        public static RbValue DrawText(RbState state, RbValue self, RbValue x, RbValue y, RbValue w, RbValue h, RbValue text, RbValue align)
         {
             var data = GetBitmapData(self);
             var fontData = data.FontData;
             ApplyTexture2DChange(data);
 
+            var alignType = (int)align.ToIntUnchecked(); 
+            
             var textToRender = text.ToStringUnchecked();
             var rx = x.ToIntUnchecked();
             var ry = y.ToIntUnchecked();
@@ -544,7 +563,7 @@ namespace RGSSUnity.RubyClasses
             textCamera.targetTexture = textRenderTexture;
 
             // Create a new GameObject for the TextMeshPro object
-            GenerateTextMeshProObject(textToRender, fontData, rw, rh, out var textObject, out var textMeshPro);
+            GenerateTextMeshProObject(data, textToRender, fontData, rw, rh, alignType, out var textObject, out var textMeshPro);
 
             textCamera.Render();
 
@@ -557,7 +576,7 @@ namespace RGSSUnity.RubyClasses
             // copy the textRenderTexture to texture2d with pos (rx, ry)
             var texture2d = data.Texture2D;
             var renderTexture = data.RenderTexture;
-            Object.Destroy(textObject);
+            textObject.SetActive(false);
 
             CommonStretchBlt(
                 textRenderTexture,
@@ -572,36 +591,58 @@ namespace RGSSUnity.RubyClasses
         }
 
         private static void GenerateTextMeshProObject(
+            BitmapData bitmapData,
             string rtext,
             FontData fontData,
             long rw,
             long rh,
+            int alignType,
             out GameObject textObject,
             out TextMeshPro textMeshPro)
         {
-            // todo: cache textObject and check if font data changed and choose if to update parameters of textMeshPro
-            // Create a new GameObject for the TextMeshPro object
-            textObject = new GameObject("TextMeshPro Object")
+            if (!bitmapData.TextMeshProObject)
             {
-                layer = LayerMask.NameToLayer("UI"),
-            };
-
-            // Add a TextMeshPro component to the GameObject
-            textMeshPro = textObject.AddComponent<TextMeshPro>();
+                // Create a new GameObject for the TextMeshPro object
+                textObject = new GameObject("TextMeshPro Object")
+                {
+                    layer = LayerMask.NameToLayer("UI"),
+                };
+                bitmapData.TextMeshProObject = textObject;
+                // Add a TextMeshPro component to the GameObject
+                textMeshPro = textObject.AddComponent<TextMeshPro>();
+                bitmapData.TextMeshPro = textMeshPro;
+            }
+            else
+            {
+                textObject = bitmapData.TextMeshProObject;
+                textObject.SetActive(true);
+                textMeshPro = bitmapData.TextMeshPro;
+            }
 
             textMeshPro.text = rtext;
-
             // from Unity forums https://discussions.unity.com/t/textmesh-charactersize-vs-fontsize/17896/3
             // it says that
             // characterSize = targetSizeInWorldUnits*10.0f/fontSize;
             // not sure why but it works
             textMeshPro.fontSize = fontData.Size * 10;
-            textMeshPro.alignment = TextAlignmentOptions.Left;
+
+            if (alignType == 1)
+            {
+                textMeshPro.alignment = TextAlignmentOptions.Center;
+            }
+            else if (alignType == 2)
+            {
+                textMeshPro.alignment = TextAlignmentOptions.Right;
+            }
+            else
+            {
+                textMeshPro.alignment = TextAlignmentOptions.Left;
+            }
+
             textMeshPro.overflowMode = TextOverflowModes.Overflow;
             textMeshPro.textWrappingMode = TextWrappingModes.NoWrap;
             textMeshPro.color = fontData.Color;
-            textMeshPro.alignment = TextAlignmentOptions.TopLeft;
-            textMeshPro.rectTransform.sizeDelta = new Vector2(0, 0);
+            textMeshPro.rectTransform.sizeDelta = new Vector2(rw, rh);
             textMeshPro.rectTransform.pivot = new Vector2(0.0f, 1.0f);
 
             var fontStyle = FontStyles.Normal;
@@ -636,6 +677,7 @@ namespace RGSSUnity.RubyClasses
             var data = GetBitmapData(self);
             Object.Destroy(data.RenderTexture);
             Object.Destroy(data.Texture2D);
+            Object.Destroy(data.TextMeshProObject);
             data.RenderTexture = null;
             data.Texture2D = null;
             data.Dirty = false;

@@ -3,18 +3,15 @@ using MRuby.Library.Language;
 using MRuby.Library.Mapper;
 using System.Collections.Generic;
 using UnityEngine;
-using ICSharpCode.SharpZipLib;
+using System.IO;
+using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using JetBrains.Annotations;
+using UnityEngine.Networking;
 
 namespace RGSSUnity.RubyClasses
 {
-    using System.IO;
-    using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-    using JetBrains.Annotations;
-    using Unity.VisualScripting;
-    using UnityEngine.Networking;
-
     [System.Serializable]
-    internal class RMConfig
+    public class RMConfig
     {
         public string rtp_path;
         public string project_path;
@@ -24,9 +21,8 @@ namespace RGSSUnity.RubyClasses
     public static class UnityModule
     {
         [CanBeNull]
-        private static RbValue OnUpdateProc = null;
-        [CanBeNull]
         private static RbValue UpdateFiber = null;
+
         private static List<(long ScriptId, string ScriptName, string ScriptContent)> RmvaScripts = new();
         private static RbState State;
 
@@ -49,12 +45,20 @@ namespace RGSSUnity.RubyClasses
             {
                 if (State.CheckFiberAlive(UpdateFiber).IsTrue)
                 {
-                    State.FiberResume(UpdateFiber);
+                    bool error = false;
+                    var res = State.Protect((_, _, _) =>
+                    {
+                        return State.FiberResume(UpdateFiber);
+                    }, ref error, out var func);
+
+                    if (error)
+                    {
+                        RGSSLogger.LogError("Failed to resume update fiber");
+                        var msg = res.CallMethod("msg").ToString();
+                        RGSSLogger.LogError(msg);
+                    }
+                    GC.KeepAlive(func);
                 }
-            }
-            else
-            {
-                OnUpdateProc?.CallMethod("call");
             }
         }
 
@@ -68,28 +72,11 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("on_top_exception")]
         private static RbValue OnTopExceptionHappened(RbState state, RbValue self, RbValue exceptionString)
         {
-            var traceStr = state.UnboxString(exceptionString);
-            Debug.LogError($"Unhandled Ruby exception happened in script:\n {traceStr}");
-            return state.RbNil;
-        }
-
-        [RbClassMethod("on_update=")]
-        private static RbValue SetOnUpdate(RbState state, RbValue self, RbValue val)
-        {
-            if (OnUpdateProc != null)
-            {
-                state.GcUnregister(OnUpdateProc);
-            }
-            OnUpdateProc = val;
-            state.GcRegister(OnUpdateProc);
+            var traceStr = exceptionString.CallMethod("to_s");
+            var message = traceStr.ToString();
+            RGSSLogger.LogError($"Unhandled Ruby exception happened in script:\n {message}");
 
             return state.RbNil;
-        }
-
-        [RbClassMethod("on_update")]
-        private static RbValue GetOnUpdate(RbState state, RbValue self)
-        {
-            return OnUpdateProc ?? state.RbNil;
         }
 
         [RbClassMethod("msgbox")]
@@ -98,9 +85,10 @@ namespace RGSSUnity.RubyClasses
             Array.ForEach(args, v =>
             {
                 var str = v.CallMethod("to_s");
-                var message = state.UnboxString(str);
-                Debug.Log(message);
+                var message = str.ToString();
+                RGSSLogger.Log(message);
             });
+
             return state.RbNil;
         }
 
@@ -126,9 +114,18 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("run_rmva_scripts")]
         private static RbValue RunRmvaScripts(RbState state, RbValue self)
         {
-            // load RPG scripts
             var inst = RubyScriptManager.Instance;
-            var res = inst.LoadAllScriptInResources("rpg", out var error);
+
+            // load ext scripts
+            var res = inst.LoadAllScriptInResources("ext", out var error);
+            if (error)
+            {
+                state.Raise(res);
+                return res;
+            }
+
+            // load RPG scripts
+            res = inst.LoadAllScriptInResources("rpg", out error);
             if (error)
             {
                 state.Raise(res);
@@ -137,19 +134,17 @@ namespace RGSSUnity.RubyClasses
 
             foreach (var (scriptId, scriptName, scriptContent) in RmvaScripts)
             {
-                Debug.Log($"run rmva script: {scriptName}");
-                res = inst.LoadScriptContentWithFileName(scriptName, scriptContent);
+                RGSSLogger.Log($"run rmva script: {scriptName}");
+                res = inst.LoadScriptContentWithFileName(scriptName, scriptContent, out error);
 
-                if (res.IsException)
+                if (error)
                 {
                     state.Raise(res);
                     return res;
                 }
             }
 
-            // run patch script
-            res = inst.LoadScriptInResources("patch_rmva");
-            return res;
+            return state.RbNil;
         }
 
         [RbClassMethod("rtp_path")]
@@ -165,25 +160,36 @@ namespace RGSSUnity.RubyClasses
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Failed to read rm_conf.json: {www.error}");
-                var errorCls = state.GetExceptionClass("RGSSError");
-                var exc = state.GenerateExceptionWithNewStr(errorCls, "Failed to load RM config");
-                state.Raise(exc);
+                RGSSLogger.LogError($"Failed to read rm_conf.json: {www.error}");
+                state.RaiseRGSSError("Failed to load RM config");
                 return state.RbNil;
             }
 
-            var res = www.downloadHandler.text;
-            var json = JsonUtility.FromJson<RMConfig>(res);
-            return string.IsNullOrEmpty(json.rtp_path) ? string.Empty.ToValue(state) : json.rtp_path.ToValue(state);
+            // BOM issue, see also: https://discussions.unity.com/t/jsonutility-fromjson-error-invalid-value/635192
+            var res = www.downloadHandler.data;
+            string jsonString;
+            jsonString = System.Text.Encoding.UTF8.GetString(res, 3, res.Length - 3);
+
+            try
+            {
+                var json = JsonUtility.FromJson<RMConfig>(jsonString);
+                RGSSLogger.Log($"json: {json.rtp_path}");
+                return string.IsNullOrEmpty(json.rtp_path) ? string.Empty.ToValue(state) : json.rtp_path.ToValue(state);
+            }
+            catch (Exception ex)
+            {
+                RGSSLogger.LogError($"Failed to deserialize JSON: {ex.Message}");
+                return string.Empty.ToValue(state);
+            }
         }
-        
+
         [RbClassMethod("exit_game")]
         private static RbValue ExitGame(RbState state, RbValue self)
         {
             Application.Quit();
             return state.RbNil;
         }
-        
+
         [RbClassMethod("register_update_fiber")]
         private static RbValue RegisterUpdateFiber(RbState state, RbValue self, RbValue fiber)
         {
@@ -198,7 +204,7 @@ namespace RGSSUnity.RubyClasses
             }
             return state.RbNil;
         }
-        
+
         [RbClassMethod("unregister_update_fiber")]
         private static RbValue UnregisterUpdateFiber(RbState state, RbValue self)
         {
