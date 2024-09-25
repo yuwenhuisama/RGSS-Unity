@@ -73,3 +73,7 @@ crashlytics-build.properties
 
 .idea/
 Assets/Resources/RGSS/.idea/
+.cache/
+.vscode/
+.xmake/
+build/
