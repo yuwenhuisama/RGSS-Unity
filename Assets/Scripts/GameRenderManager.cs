@@ -29,19 +29,27 @@ namespace RGSSUnity
             pos.z = 1;
             this.viewportsRoot.transform.position = pos;
             this.screenRenderer = screenRenderObject.GetComponent<SpriteRenderer>();
-            this.screenRenderer.sprite =
-                Sprite.Create(new Texture2D(Screen.width, Screen.height, TextureFormat.RGBA32, false, false),
-                    new Rect(0, 0, Screen.width, Screen.height),
-                    new Vector2(0.0f, 1.0f), 1.0f);
-            this.screenRenderer.transform.position = new Vector3(-(Screen.width / 2), Screen.height / 2.0f, 1.0f);
 
-            this.MainRenderTexture = new RenderTexture(Screen.width, Screen.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            var w = Screen.width;
+            var h = Screen.height;
+            if (GlobalConfig.LegacyMode)
+            {
+                w = GlobalConfig.LegacyModeWidth;
+                h = GlobalConfig.LegacyModeHeight;
+            }
+            this.screenRenderer.sprite =
+                Sprite.Create(new Texture2D(w, h, TextureFormat.RGBA32, false, false),
+                    new Rect(0, 0, w, h),
+                    new Vector2(0.0f, 1.0f), 1.0f);
+            this.screenRenderer.transform.position = new Vector3(-(w / 2), h / 2.0f, 1.0f);
+
+            this.MainRenderTexture = new RenderTexture(w, h, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             this.mainCamera = mainCamera;
             this.renderCamera = renderCamera;
             this.renderCamera.enabled = false;
 
             this.screenMaterial = new Material(Shader.Find("Custom/GraphicsPostprocessShader"));
-            this.postProcessTexture = new RenderTexture(Screen.width, Screen.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            this.postProcessTexture = new RenderTexture(w, h, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
         }
 
         public void Update()
@@ -158,7 +166,14 @@ namespace RGSSUnity
                 Bitmap.RenderTextureToTexture2D(viewportTex, viewportRenderer.sprite.texture);
 
                 // put viewport renderer to real position
-                viewport.position = new Vector3(-Screen.width / 2.0f + vx, Screen.height / 2.0f - vy, 999);
+                var w = Screen.width;
+                var h = Screen.height;
+                if (GlobalConfig.LegacyMode)
+                {
+                    w = GlobalConfig.LegacyModeWidth;
+                    h = GlobalConfig.LegacyModeHeight;
+                }
+                viewport.position = new Vector3(-w / 2.0f + vx, h / 2.0f - vy, 999);
             }
 
             this.renderCamera.targetTexture = this.MainRenderTexture;

@@ -12,6 +12,8 @@
             public string rtp_path;
             public string project_path;
             public bool legacy_mode;
+            public int legacy_mode_width;
+            public int legacy_mode_height;
         }
 
         private static RmConfig Config;
@@ -42,5 +44,8 @@
         public static string RtpPath => Config.rtp_path;
         public static string ProjectPath => Config.project_path;
         public static bool LegacyMode => Config.legacy_mode;
+
+        public static int LegacyModeWidth => Config.legacy_mode_width;
+        public static int LegacyModeHeight => Config.legacy_mode_height;
     }
 }

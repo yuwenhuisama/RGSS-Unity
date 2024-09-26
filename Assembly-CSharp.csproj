@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\GameAudioManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
+    <Compile Include="Assets\Scripts\GlobalConfig.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
     <Compile Include="Assets\Scripts\RubyClasses\Sprite.cs" />
@@ -146,7 +147,9 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\Packages\SharpZipLib.1.4.2\lib\netstandard2.1\ICSharpCode.SharpZipLib.xml" />
     <None Include="Assets\Shaders\PlaneShader.shader" />
+    <None Include="Assets\TextMesh Pro\Glyph Report.txt" />
     <None Include="Assets\Shaders\FillRectShader.shader" />
+    <None Include="Assets\Resources\Font\cn-characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\Shaders\BlurShader.shader" />

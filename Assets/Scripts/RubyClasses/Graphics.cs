@@ -312,10 +312,12 @@ namespace RGSSUnity.RubyClasses
         }
 
         [RbModuleMethod("width")]
-        private static RbValue GetWidth(RbState state, RbValue self) => Screen.width.ToValue(state);
+        private static RbValue GetWidth(RbState state, RbValue self) => 
+            GlobalConfig.LegacyMode ? GlobalConfig.LegacyModeWidth.ToValue(state) : Screen.width.ToValue(state);
 
         [RbModuleMethod("height")]
-        private static RbValue GetHeight(RbState state, RbValue self) => Screen.height.ToValue(state);
+        private static RbValue GetHeight(RbState state, RbValue self) =>
+            GlobalConfig.LegacyMode ? GlobalConfig.LegacyModeHeight.ToValue(state) : Screen.height.ToValue(state);
 
         [RbModuleMethod("snap_to_bitmap")]
         private static RbValue SnapToBitmap(RbState state, RbValue self)

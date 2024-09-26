@@ -53,8 +53,15 @@ namespace RGSSUnity.RubyClasses
         {
             var vx = 0;
             var vy = 0;
+
             var vw = Screen.width;
             var vh = Screen.height;
+
+            if (GlobalConfig.LegacyMode)
+            {
+                vw = GlobalConfig.LegacyModeWidth;
+                vh = GlobalConfig.LegacyModeHeight;
+            }
 
             return CreateViewport(state, self.ToClass(), vx, vy, vw, vh);
         }
