@@ -1,10 +1,9 @@
 ﻿using MRuby.Library.Language;
 using MRuby.Library.Mapper;
+using System.Linq;
 
 namespace RGSSUnity.RubyClasses
 {
-    using System;
-    using System.Linq;
 
     public class FontData : RubyData
     {
@@ -25,9 +24,9 @@ namespace RGSSUnity.RubyClasses
     [RbClass("Font", "Object", "Unity")]
     public static class Font
     {
-        internal static RbValue CreateFont(RbState state, FontData fontData = null)
+        private static RbValue CreateFont(RbState state, FontData fontData)
         {
-            var stub = fontData ?? new FontData(state);
+            var stub = fontData;
             var cls = RubyScriptManager.Instance.GetClassUnderUnityModule("Font");
             var res = cls.NewObjectWithRData(stub);
             return res;
@@ -36,9 +35,6 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("new_ns")]
         public static RbValue NewFont(RbState state, RbValue self, RbValue name, RbValue size)
         {
-            var names = name.ToArray();
-            var nameLen = names.Size;
-
             var fontSize = size.ToIntUnchecked();
 
             var nameArr = name

@@ -96,48 +96,62 @@ namespace RGSSUnity.RubyClasses
             {
                 return state.RbNil;
             }
-            
-            if (RemainDuration_ >= 0)
+
+            // force to reset the brightness value to 0.0f or 1.0f after processing fade
+            if (RemainDuration_ == 0 && FadeState != FadeState.None)
             {
                 brightness = FadeState switch
                 {
-                    FadeState.FadeIn => FromBrightness_ + (1.0f - FromBrightness_) * RemainDuration_ / FadeDuration_,
+                    FadeState.FadeIn => 1.0f,
+                    FadeState.FadeOut => 0.0f,
+                    FadeState.Transition => 1.0f,
+                    _ => brightness
+                };
+                --RemainDuration_;
+                return state.RbNil;
+            }
+
+            if (RemainDuration_ < 0)
+            {
+                FadeDuration_ = 0;
+                RemainDuration_ = 0;
+                FadeState = FadeState.None;
+
+                if (FrozenRenderTex_)
+                {
+                    RenderTexture.ReleaseTemporary(FrozenRenderTex_);
+                    FrozenRenderTex_ = null;
+                }
+
+                if (NewRenderTex_)
+                {
+                    RenderTexture.ReleaseTemporary(NewRenderTex_);
+                    NewRenderTex_ = null;
+                }
+
+                if (TransitionProcessTexture_)
+                {
+                    RenderTexture.ReleaseTemporary(TransitionProcessTexture_);
+                    TransitionProcessTexture_ = null;
+                }
+
+                if (TransitionRenderTex_)
+                {
+                    Object.Destroy(TransitionRenderTex_);
+                    TransitionRenderTex_ = null;
+                }
+            }
+
+            if (RemainDuration_ > 0)
+            {
+                brightness = FadeState switch
+                {
+                    FadeState.FadeIn => FromBrightness_ + (1.0f - FromBrightness_) * (1.0f - (float)RemainDuration_ / FadeDuration_),
                     FadeState.FadeOut => FromBrightness_ * RemainDuration_ / FadeDuration_,
                     FadeState.Transition => FromBrightness_ * (1.0f - (float)RemainDuration_ / FadeDuration_),
                     _ => brightness
                 };
-
                 --RemainDuration_;
-                if (RemainDuration_ <= 0)
-                {
-                    FadeDuration_ = 0;
-                    RemainDuration_ = 0;
-                    FadeState = FadeState.None;
-
-                    if (FrozenRenderTex_)
-                    {
-                        RenderTexture.ReleaseTemporary(FrozenRenderTex_);
-                        FrozenRenderTex_ = null;
-                    }
-
-                    if (NewRenderTex_)
-                    {
-                        RenderTexture.ReleaseTemporary(NewRenderTex_);
-                        NewRenderTex_ = null;
-                    }
-
-                    if (TransitionProcessTexture_)
-                    {
-                        RenderTexture.ReleaseTemporary(TransitionProcessTexture_);
-                        TransitionProcessTexture_ = null;
-                    }
-
-                    if (TransitionRenderTex_)
-                    {
-                        Object.Destroy(TransitionRenderTex_);
-                        TransitionRenderTex_ = null;
-                    }
-                }
             }
 
             Render();
@@ -218,12 +232,12 @@ namespace RGSSUnity.RubyClasses
 
             if (filename.IsNil)
             {
-                // return FadeIn(state, self, duration);
-                return state.RbNil;
+                brightness = 0.0f;
+                return FadeIn(state, self, duration);
             }
-            
+
             var transFileName = filename.ToStringUnchecked()!;
-            
+
             var vagueVal = vague.ToIntUnchecked();
             FadeDuration_ = duration.ToIntUnchecked();
             RemainDuration_ = FadeDuration_;
@@ -245,7 +259,7 @@ namespace RGSSUnity.RubyClasses
             // load transition texture
             TransitionRenderTex_ = new Texture2D(1, 1, TextureFormat.ARGB32, false, false);
             var filePath = Path.Combine(Application.streamingAssetsPath, transFileName);
-            
+
             using UnityWebRequest www = UnityWebRequest.Get(filePath);
             www.SendWebRequest();
 
@@ -261,7 +275,7 @@ namespace RGSSUnity.RubyClasses
             }
 
             var bytes = www.downloadHandler.data;
-            
+
             if (!TransitionRenderTex_.LoadImage(bytes))
             {
                 RGSSLogger.LogError($"Failed to load transition texture: {filePath}");

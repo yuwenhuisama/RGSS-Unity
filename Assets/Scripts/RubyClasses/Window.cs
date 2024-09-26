@@ -191,6 +191,8 @@ namespace RGSSUnity.RubyClasses
             var rw = width.ToIntUnchecked();
             var rh = height.ToIntUnchecked();
 
+            var rect = Rect.CreateRect(state, 0, 0, 0, 0);
+            
             var windowData = new WindowData(state)
             {
                 X = (float)rx,
@@ -198,10 +200,7 @@ namespace RGSSUnity.RubyClasses
                 Width = (int)rw,
                 Height = (int)rh,
                 Z = 100,
-                CursorRect = new RectData(state)
-                {
-                    Rect = new UnityEngine.Rect(0, 0, 0, 0),
-                },
+                CursorRect = rect.GetRDataObject<RectData>(),
                 ArrowsVisible = true,
                 Active = true,
                 Visible = true,
@@ -267,6 +266,7 @@ namespace RGSSUnity.RubyClasses
             result["@windowskin"] = state.RbNil;
             result["@contents"] = state.RbNil;
             result["@viewport"] = state.RbNil;
+            result["@cursor_rect"] = rect;
             return result;
         }
 
@@ -356,9 +356,7 @@ namespace RGSSUnity.RubyClasses
         [RbInstanceMethod("cursor_rect")]
         public static RbValue CursorRect(RbState state, RbValue self)
         {
-            var data = self.GetRDataObject<WindowData>();
-            var cursorRect = data.CursorRect;
-            return Rect.CreateRect(state, cursorRect.Rect.x, cursorRect.Rect.y, cursorRect.Rect.width, cursorRect.Rect.height);
+            return self["@cursor_rect"];
         }
 
         [RbInstanceMethod("cursor_rect=")]
@@ -367,6 +365,7 @@ namespace RGSSUnity.RubyClasses
             var data = self.GetRDataObject<WindowData>();
             var rect = cursorRect.GetRDataObject<RectData>();
             data.CursorRect = rect;
+            self["@cursor_rect"] = cursorRect;
             return state.RbNil;
         }
 
@@ -737,8 +736,8 @@ namespace RGSSUnity.RubyClasses
             data.WindowBackgroundTiledSpriteRenderer.sortingOrder = data.Z + 1;
             data.WindowBorderSpriteRenderer.sortingOrder = data.Z + 2;
 
-            data.CursorSpriteRenderer.sortingOrder = data.Z + 2;
             data.ContentsSpriteRenderer.sortingOrder = data.Z + 3;
+            data.CursorSpriteRenderer.sortingOrder = data.Z + 4;
             data.ArrowObjectRenderers.T.sortingOrder = data.Z + 4;
             data.ArrowObjectRenderers.R.sortingOrder = data.Z + 4;
             data.ArrowObjectRenderers.B.sortingOrder = data.Z + 4;
@@ -821,7 +820,8 @@ namespace RGSSUnity.RubyClasses
             {
                 data.CursorGameObject.SetActive(true);
                 data.CursorSpriteRenderer.size = new Vector2(data.CursorRect.Rect.width, data.CursorRect.Rect.height);
-                data.CursorGameObject.transform.localPosition = new Vector3(data.CursorRect.Rect.x, -data.CursorRect.Rect.y, 3);
+                data.CursorGameObject.transform.localPosition = new Vector3(
+                    data.CursorRect.Rect.x + data.Padding, -data.CursorRect.Rect.y - data.PaddingBottom, 3);
                 if (data.Active)
                 {
                     var color = data.CursorSpriteRenderer.color;
@@ -953,6 +953,7 @@ namespace RGSSUnity.RubyClasses
 
             var cursorObject = new GameObject("Cursor Object");
             cursorObject.transform.SetParent(data.WindowBorderGameObject.transform);
+            cursorObject.transform.localPosition = new Vector3(0, 0, 3);
 
             var renderer = cursorObject.AddComponent<SpriteRenderer>();
             renderer.drawMode = SpriteDrawMode.Sliced;

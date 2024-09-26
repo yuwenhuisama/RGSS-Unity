@@ -10,13 +10,6 @@ using UnityEngine.Networking;
 
 namespace RGSSUnity.RubyClasses
 {
-    [System.Serializable]
-    public class RMConfig
-    {
-        public string rtp_path;
-        public string project_path;
-    }
-
     [RbModule("Unity", "")]
     public static class UnityModule
     {
@@ -150,37 +143,7 @@ namespace RGSSUnity.RubyClasses
         [RbClassMethod("rtp_path")]
         private static RbValue GetRtpPath(RbState state, RbValue self)
         {
-            // read text via UnityWebRequest
-            var path = Path.Join(Application.streamingAssetsPath, "rm_conf.json");
-            using UnityWebRequest www = UnityWebRequest.Get(path);
-            www.SendWebRequest();
-            while (!www.isDone)
-            {
-            }
-
-            if (www.result != UnityWebRequest.Result.Success)
-            {
-                RGSSLogger.LogError($"Failed to read rm_conf.json: {www.error}");
-                state.RaiseRGSSError("Failed to load RM config");
-                return state.RbNil;
-            }
-
-            // BOM issue, see also: https://discussions.unity.com/t/jsonutility-fromjson-error-invalid-value/635192
-            var res = www.downloadHandler.data;
-            string jsonString;
-            jsonString = System.Text.Encoding.UTF8.GetString(res, 3, res.Length - 3);
-
-            try
-            {
-                var json = JsonUtility.FromJson<RMConfig>(jsonString);
-                RGSSLogger.Log($"json: {json.rtp_path}");
-                return string.IsNullOrEmpty(json.rtp_path) ? string.Empty.ToValue(state) : json.rtp_path.ToValue(state);
-            }
-            catch (Exception ex)
-            {
-                RGSSLogger.LogError($"Failed to deserialize JSON: {ex.Message}");
-                return string.Empty.ToValue(state);
-            }
+            return string.IsNullOrEmpty(GlobalConfig.RtpPath) ? state.RbNil : GlobalConfig.RtpPath.ToValue(state);
         }
 
         [RbClassMethod("exit_game")]

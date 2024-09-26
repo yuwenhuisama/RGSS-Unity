@@ -63,6 +63,7 @@ class Font
       name = [Font.default_name]
       size = Font.default_size
       @__handler__ = Unity::Font.new_ns(name, size)
+      return
     elsif args.length == 1
       arg, = args
       if arg.is_a? Unity::Font
@@ -97,7 +98,7 @@ class Font
     @__handler__.outline = Font.default_outline
     @__handler__.color = Font.default_color.__handler__
     @__handler__.out_color = Font.default_out_color.__handler__
-  end
+  end 
 
   def color
     Color.new @__handler__.color
@@ -159,5 +160,7 @@ class Font
     end
   end
 
-  DEFAULT_FONT = Font.new("Arial", 24)
+  def self.create_default_font
+    Font.new("Arial", 24)
+  end
 end

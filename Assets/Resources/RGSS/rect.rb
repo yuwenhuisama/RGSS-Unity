@@ -30,14 +30,14 @@ class Rect
     elsif args.size == 4
       check_arguments(args, [Integer, Integer, Integer, Integer])
 
-      self.x, self.y, self.w, self.h = args
+      @__handler__.set_xywh(*args)
     else
       raise ArgumentError.new("Invalid number of arguments")
     end
   end
 
   def empty
-    self.x, self.y, self.width, self.height = 0, 0, 0, 0
+    @__handler__.set_xywh(0, 0, 0, 0)
   end
 
   def eql?(other)

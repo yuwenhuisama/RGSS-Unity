@@ -13,12 +13,14 @@ namespace RGSSUnity
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
+            GlobalConfig.Init();
+
             var renderMgr = GameRenderManager.Instance;
             renderMgr.Init(this.MainCamera, this.RenderCamera, this.ViewportsRoot, this.ScreenRenderObject);
-            
+
             var inputMgr = InputStateRecorder.Instance;
             inputMgr.Init();
-            
+
             var audioMgr = GameAudioManager.Instance;
             var bgmAudiosource = this.AudioSourceObject.transform.Find("BGMAudioSource").GetComponent<AudioSource>();
             var bgsAudiosource = this.AudioSourceObject.transform.Find("BGSAudioSource").GetComponent<AudioSource>();
@@ -30,7 +32,7 @@ namespace RGSSUnity
                 meAudiosource,
                 seAudiosource,
                 coroutine => this.StartCoroutine(coroutine));
-            
+
             var scriptMgr = RubyScriptManager.Instance;
             scriptMgr.Initialize();
             scriptMgr.LoadMainScript();
@@ -42,7 +44,7 @@ namespace RGSSUnity
             RubyClasses.UnityModule.Update();
             RGSSLogger.Instance.Update();
         }
-        
+
         void OnApplicationQuit()
         {
             RubyScriptManager.Instance.Destroy();

@@ -9,6 +9,7 @@ class Bitmap
     if args.size == 1
       if args[0].is_a? Unity::Bitmap
         @__handler__, = args
+        return
       elsif args[0].is_a? String
         filename, = args
         @__handler__ = Unity::Bitmap.new_filename(filename)
@@ -23,7 +24,7 @@ class Bitmap
       raise ArgumentError, "Invalid number of arguments"
     end
 
-    self.font = Font::DEFAULT_FONT
+    self.font = Font.create_default_font
   end
 
   def blt(x, y, src_bitmap, src_rect, opacity = 255)
@@ -136,8 +137,6 @@ class Bitmap
       check_arguments([align], [[Integer, NilClass]])
       align ||= 0
 
-      msgbox "align type: #{align}"
-      
       @__handler__.draw_text(rect.x, rect.y, rect.width, rect.height, str, align)
     else
       raise ArgumentError, "Invalid number of arguments"

@@ -1,0 +1,13 @@
+Font: Noto Sans SC  Style: Regular
+Point Size: 46   Padding: 2   SP/PD Ratio: 4.3%
+
+Characters included: 7198/7199
+Missing characters: 1
+Excluded characters: 0
+
+Characters missing from font file:
+----------------------------------------
+ID: 9	Hex: 9	Char [	]
+
+Characters excluded from packing:
+----------------------------------------

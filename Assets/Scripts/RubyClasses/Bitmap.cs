@@ -111,14 +111,7 @@ namespace RGSSUnity.RubyClasses
             // clear renderTexture to transparent color
             CommonClear(renderTexture);
 
-            var cls = self.ToClassUnchecked();
-            var bitmapData = new BitmapData(state)
-            {
-                RenderTexture = renderTexture,
-                Texture2D = texture2D,
-                Rect = rect,
-            };
-            var res = cls.NewObjectWithRData(bitmapData);
+            var res = CreateBitmapObject(state, self, renderTexture, texture2D, rect);
             return res;
         }
 
@@ -142,6 +135,8 @@ namespace RGSSUnity.RubyClasses
             RenderTextureToTexture2D(renderTexture, texture2D);
 
             var res = CreateBitmapObject(state, self, renderTexture, texture2D, rect);
+
+            res["@font"] = state.RbNil; 
             return res;
         }
 
@@ -150,12 +145,8 @@ namespace RGSSUnity.RubyClasses
             var renderTexture = new RenderTexture(texture2D.width, texture2D.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             var cls = RubyScriptManager.Instance.GetClassUnderUnityModule("Bitmap");
             var rect = new UnityEngine.Rect(0, 0, texture2D.width, texture2D.height);
-            var res = cls.NewObjectWithRData(new BitmapData(state)
-            {
-                RenderTexture = renderTexture,
-                Texture2D = texture2D,
-                Rect = rect,
-            });
+            var res = CreateBitmapObject(state, cls.ClassObject, renderTexture, texture2D, rect);
+
             return res;
         }
 
@@ -168,6 +159,9 @@ namespace RGSSUnity.RubyClasses
                 Texture2D = texture2D,
                 Rect = rect,
             });
+
+            res["@font"] = state.RbNil;
+            res["@rect"] = Rect.CreateRect(state, rect.x, rect.y, rect.height, rect.width);
             return res;
         }
 
@@ -195,9 +189,7 @@ namespace RGSSUnity.RubyClasses
         [RbInstanceMethod("font")]
         public static RbValue Font(RbState state, RbValue self)
         {
-            var data = GetBitmapData(self);
-            var font = RubyClasses.Font.CreateFont(state, data.FontData);
-            return font;
+            return self["@font"];
         }
 
         [RbInstanceMethod("font=")]
@@ -206,17 +198,14 @@ namespace RGSSUnity.RubyClasses
             var data = GetBitmapData(self);
             var fontData = font.GetRDataObject<FontData>();
             data.FontData = fontData;
+            self["@font"] = font;
             return state.RbNil;
         }
 
         [RbInstanceMethod("rect")]
         public static RbValue GetRect(RbState state, RbValue self)
         {
-            var data = GetBitmapData(self);
-            var rect = data.Rect;
-            var res = Rect.CreateRect(
-                state, (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
-            return res;
+            return self["@rect"];
         }
 
         [RbInstanceMethod("rect=")]
@@ -225,6 +214,8 @@ namespace RGSSUnity.RubyClasses
             var data = GetBitmapData(self);
             var rectData = self.GetRDataObject<RectData>();
             data.Rect = rectData.Rect;
+
+            self["@rect"] = rect;
             return state.RbNil;
         }
 
@@ -569,7 +560,6 @@ namespace RGSSUnity.RubyClasses
 
             // todo: make shadow effect for rendered text
             textCamera.cullingMask = oriCullingMask;
-            textMeshPro.enabled = false;
             textCamera.enabled = false;
             textCamera.targetTexture = null;
 
@@ -619,6 +609,14 @@ namespace RGSSUnity.RubyClasses
                 textMeshPro = bitmapData.TextMeshPro;
             }
 
+            // Create a new GameObject for the TextMeshPro object
+            // textObject = new GameObject("TextMeshPro Object")
+            // {
+            //     layer = LayerMask.NameToLayer("UI"),
+            // };
+            // Add a TextMeshPro component to the GameObject
+            // textMeshPro = textObject.AddComponent<TextMeshPro>();
+            
             textMeshPro.text = rtext;
             // from Unity forums https://discussions.unity.com/t/textmesh-charactersize-vs-fontsize/17896/3
             // it says that

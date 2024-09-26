@@ -9,7 +9,6 @@ class Window
     check_arguments([x, y, width, height], [[Integer, Float], [Integer, Float], Integer, Integer])
     @__handler__ = Unity::Window.new_xywh(x, y, width, height, Viewport::DEFAULT_VIEWPORT.__handler__)
     self.contents = Window::DEFAULT_CONTENTS_BITMAP
-    msgbox "set window padding"
     self.padding = 24
     self.padding_bottom = 24
   end
