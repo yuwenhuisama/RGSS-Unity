@@ -1,6 +1,16 @@
 [
 {
   "directory": "E:\\Projects\\PhysTetris\\RMUnity\\mruby-ext\\marshal",
-  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/Imruby-marshal\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/EHsc", "/Fobuild\\.objs\\mruby_marshal_ext_x64\\windows\\x64\\release\\mruby-marshal\\src\\marshal.cpp.obj", "mruby-marshal\\src\\marshal.cpp"],
-  "file": "mruby-marshal\\src\\marshal.cpp"
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_c_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\dump.c.obj", "mruby-marshal-c\\src\\dump.c"],
+  "file": "mruby-marshal-c\\src\\dump.c"
+},
+{
+  "directory": "E:\\Projects\\PhysTetris\\RMUnity\\mruby-ext\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_c_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\load.c.obj", "mruby-marshal-c\\src\\load.c"],
+  "file": "mruby-marshal-c\\src\\load.c"
+},
+{
+  "directory": "E:\\Projects\\PhysTetris\\RMUnity\\mruby-ext\\marshal",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.41.34120\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/Imruby-marshal-c\\include", "/IE:\\Projects\\mruby-for-dotnet\\mruby\\build\\host\\include", "/DMRB_INT64", "/DMRB_NO_PRESYM", "/Fobuild\\.objs\\mruby_marshal_c_ext_x64\\windows\\x64\\release\\mruby-marshal-c\\src\\marshal.c.obj", "mruby-marshal-c\\src\\marshal.c"],
+  "file": "mruby-marshal-c\\src\\marshal.c"
 }]
