@@ -682,6 +682,7 @@ namespace RGSSUnity.RubyClasses
                 32,
                 RenderTextureFormat.ARGB32,
                 RenderTextureReadWrite.sRGB);
+            RubyClasses.Bitmap.CommonClear(tmpRenderTex);
             var destRect = new UnityEngine.Rect(destX, destY, src.width, src.height);
             RubyClasses.Bitmap.CommonStretchBlt(src, srcRect, tmpRenderTex, destRect, 1.0f);
             RubyClasses.Bitmap.RenderTextureToTexture2D(tmpRenderTex, dest);

@@ -1,4 +1,5 @@
-﻿require 'type_check_util'
+﻿# encoding: utf-8
+require 'type_check_util'
 
 class Window
   include TypeCheckUtil
@@ -8,7 +9,8 @@ class Window
   def initialize(x = 0, y = 0, width = 0, height = 0)
     check_arguments([x, y, width, height], [[Integer, Float], [Integer, Float], Integer, Integer])
     @__handler__ = Unity::Window.new_xywh(x, y, width, height, Viewport::DEFAULT_VIEWPORT.__handler__)
-    self.contents = Window::DEFAULT_CONTENTS_BITMAP
+    self.cursor_rect = Rect.create_default_rect
+    self.contents = Bitmap.create_default_bitmap
     self.padding = 24
     self.padding_bottom = 24
   end
@@ -28,7 +30,7 @@ class Window
   end
 
   def contents
-    Bitmap.new(@__handler__.contents)
+    Bitmap.new @__handler__.contents
   end
 
   def contents=(contents)
@@ -37,7 +39,7 @@ class Window
   end
 
   def cursor_rect
-    Rect.new(@__handler__.cursor_rect)
+    Rect.new @__handler__.cursor_rect
   end
 
   def cursor_rect=(rect)
@@ -167,6 +169,4 @@ class Window
       @__handler__.send("#{prop}=", value)
     end
   end
-
-  DEFAULT_CONTENTS_BITMAP = Bitmap.new(1, 1)
 end

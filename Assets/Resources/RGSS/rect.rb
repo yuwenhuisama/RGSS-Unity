@@ -1,4 +1,5 @@
-﻿require 'type_check_util'
+﻿# encoding: utf-8
+require 'type_check_util'
 
 class Rect
   include TypeCheckUtil
@@ -60,6 +61,10 @@ class Rect
 
   def self._load(s)
     Rect.new(*s.unpack('l4'))
+  end
+  
+  def self.create_default_rect
+    Rect.new(0, 0, 0, 0)
   end
 
   [:x, :y, :width, :height].each do |prop|

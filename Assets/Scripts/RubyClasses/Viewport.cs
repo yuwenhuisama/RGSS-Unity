@@ -289,6 +289,8 @@ namespace RGSSUnity.RubyClasses
                 return;
             }
 
+            renderer.sortingOrder = (int)data.Z;
+
             if (data.RemainFlashDuration > 0 && data.FlashColorData == null)
             {
                 return;

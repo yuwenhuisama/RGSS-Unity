@@ -14,6 +14,7 @@
             public bool legacy_mode;
             public int legacy_mode_width;
             public int legacy_mode_height;
+            public bool cn_ver_rmva;
         }
 
         private static RmConfig Config;
@@ -47,5 +48,7 @@
 
         public static int LegacyModeWidth => Config.legacy_mode_width;
         public static int LegacyModeHeight => Config.legacy_mode_height;
+
+        public static bool CnVerRmva => Config.cn_ver_rmva;
     }
 }

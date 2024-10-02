@@ -13,7 +13,7 @@ function common_settings()
     add_includedirs("Onigmo/")
     add_files(gem_name .. "/src/*.c")
 
-    add_defines("MRB_INT64", "MRB_NO_PRESYM")
+    add_defines("MRB_INT64", "MRB_NO_PRESYM", "MRB_UTF8_STRING")
     add_defines("HAVE_ONIGMO_H")
 end
 
@@ -33,13 +33,13 @@ target(ext_base_name .. "_ext_x64")
 
         add_files("export.def")
         set_basename("lib" .. ext_base_name .. "_ext_x64")
-        add_links("../lib/libmruby_x64.lib")
-        add_links("../lib/onigmo_s.lib")
+        add_links("lib/libmruby_x64.lib")
+        add_links("lib/onigmo_s.lib")
     elseif os_name == "linux" then
         common_settings()
 
         set_basename(ext_base_name .. "_ext_x64")
-        add_links("../lib/libmruby_x64.so")
+        add_links("lib/libmruby_x64.so")
     elseif os_name == "macosx" then
         -- Build for x86_64
         target(ext_base_name .. "_ext_x86_64")
@@ -47,14 +47,14 @@ target(ext_base_name .. "_ext_x64")
 
             set_basename(ext_base_name .. "_ext_x86_64")
             set_arch("x86_64")
-            add_links("../lib//libmruby_x64.dylib")
+            add_links("lib/libmruby_x64.dylib")
 
         target(ext_base_name .. "_ext_arm64")
             common_settings()
 
             set_basename(ext_base_name .. "_ext_arm64")
             set_arch("arm64")
-            add_links("../lib/libmruby_x64.dylib")
+            add_links("lib/libmruby_x64.dylib")
 
             -- Combine into a universal binary
         target(ext_base_name .. "_ext_universal")

@@ -1,4 +1,5 @@
-﻿module Kernel
+﻿# encoding: utf-8
+module Kernel
   def rgss_main(&callback)
     $rgss_main_callback = callback
   end

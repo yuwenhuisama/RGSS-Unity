@@ -1,4 +1,5 @@
-﻿require 'type_check_util'
+﻿# encoding: utf-8
+require 'type_check_util'
 
 class Table
   include TypeCheckUtil

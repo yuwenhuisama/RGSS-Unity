@@ -4,6 +4,9 @@ using MRuby.Library.Language;
 
 namespace RGSSUnity.RubyClasses
 {
+    using System.Text;
+    using UnityEngine;
+
     class KernelKeeperCategory
     {
     }
@@ -29,6 +32,47 @@ namespace RGSSUnity.RubyClasses
             keeper.Keep(func);
 
             kernel.DefineModuleMethod("print", Print, RbHelper.MRB_ARGS_ANY(), out func);
+            keeper.Keep(func);
+        }
+
+        public static RbValue Utf8ToGbk(RbState state, RbValue self, params RbValue[] args)
+        {
+            if (GlobalConfig.CnVerRmva)
+            {
+                var gbkBytes = RbHelper.GetRawBytesFromRbStringObject(args[0]);
+                var utf8Bytes = Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding("GBK"), gbkBytes);
+                return RbHelper.BuildRbStringObjectFromRawBytes(state, utf8Bytes);
+            }
+            return args[0];
+        }
+
+        public static RbValue GbkToUtf8(RbState state, RbValue self, params RbValue[] args)
+        {
+            if (GlobalConfig.CnVerRmva)
+            {
+                var utf8Bytes = RbHelper.GetRawBytesFromRbStringObject(args[0]);
+                var gbkBytes = Encoding.Convert(Encoding.GetEncoding("GBK"), Encoding.UTF8, utf8Bytes);
+                return RbHelper.BuildRbStringObjectFromRawBytes(state, gbkBytes);
+            }
+            return args[0];
+        }
+        
+        public static void InitForUnityEditor(RbState state)
+        {
+            var kernel = state.GetModule("Kernel");
+
+            var keeper = RbNativeObjectLiveKeeper<KernelKeeperCategory, NativeMethodFunc>.GetOrCreateKeeper(state);
+
+            kernel.DefineModuleMethod("p", PrintForUnityEditor, RbHelper.MRB_ARGS_ANY(), out var func);
+            keeper.Keep(func);
+
+            kernel.DefineModuleMethod("print", PrintForUnityEditor, RbHelper.MRB_ARGS_ANY(), out func);
+            keeper.Keep(func);
+
+            kernel.DefineModuleMethod("utf82gbk", Utf8ToGbk, RbHelper.MRB_ARGS_REQ(1), out func);
+            keeper.Keep(func);
+            
+            kernel.DefineModuleMethod("gbk2utf8", GbkToUtf8, RbHelper.MRB_ARGS_REQ(1), out func);
             keeper.Keep(func);
         }
 
@@ -79,6 +123,28 @@ namespace RGSSUnity.RubyClasses
         private static RbValue Print(RbState state, RbValue self, params RbValue[] args)
         {
             return MsgBox(state, self, args);
+        }
+
+        private static RbValue PrintForUnityEditor(RbState state, RbValue self, params RbValue[] args)
+        {
+            foreach (var arg in args)
+            {
+                var str = arg.CallMethod("to_s");
+
+                // For RMVA cn ver, we use GBK encoding as the script name
+                if (GlobalConfig.CnVerRmva)
+                {
+                    var bytes = RbHelper.GetRawBytesFromRbStringObject(str);
+                    var content = Encoding.GetEncoding("GBK").GetString(bytes);
+                    Debug.Log(content);
+                }
+                else
+                {
+                    var content = str.ToString();
+                    Debug.LogError(content);
+                }
+            }
+            return state.RbNil;
         }
     }
 }

@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'type_check_util'
 
 class Bitmap
@@ -25,6 +26,7 @@ class Bitmap
     end
 
     self.font = Font.create_default_font
+    self.rect = Rect.create_default_rect
   end
 
   def blt(x, y, src_bitmap, src_rect, opacity = 255)
@@ -186,5 +188,9 @@ class Bitmap
     define_method(method) do
       @__handler__.send(method)
     end
+  end
+  
+  def self.create_default_bitmap
+    Bitmap.new 1, 1
   end
 end

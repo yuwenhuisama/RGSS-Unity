@@ -1,4 +1,5 @@
-﻿require 'type_check_util'
+﻿# encoding: utf-8
+require 'type_check_util'
 
 module Graphics
   extend TypeCheckUtil
@@ -77,8 +78,12 @@ module Graphics
     check_arguments([width, height], [Integer, Integer])
     Unity::Graphics.resize_screen(width, height)
   end
+  
+  def self.snap_to_bitmap
+    Bitmap.new Unity::Graphics.snap_to_bitmap
+  end
 
-  [:update, :freeze, :snap_to_bitmap, :frame_reset, :width, :height].each do |method_name|
+  [:update, :freeze, :frame_reset, :width, :height].each do |method_name|
     define_singleton_method(method_name) do |*args|
       Unity::Graphics.send(method_name, *args)
     end

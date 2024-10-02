@@ -212,7 +212,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue SetRect(RbState state, RbValue self, RbValue rect)
         {
             var data = GetBitmapData(self);
-            var rectData = self.GetRDataObject<RectData>();
+            var rectData = rect.GetRDataObject<RectData>();
             data.Rect = rectData.Rect;
 
             self["@rect"] = rect;
@@ -404,7 +404,9 @@ namespace RGSSUnity.RubyClasses
 
             var renderTexture = data.RenderTexture;
             var texture2D = data.Texture2D;
-            var tempTexture = RenderTexture.GetTemporary(renderTexture.width, renderTexture.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            var tempTexture = RenderTexture.GetTemporary(
+                renderTexture.width, renderTexture.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            CommonClear(tempTexture);
 
             var blurMaterial = new Material(Shader.Find("Custom/RadialBlurShader"));
 
@@ -513,7 +515,7 @@ namespace RGSSUnity.RubyClasses
             var fontData = data.FontData;
             var textStr = text.ToString();
 
-            GenerateTextMeshProObject(data, textStr, fontData, 0, 0, 0, out _, out var textMeshPro);
+            GenerateTextMeshProObject(data, textStr, fontData, 0, 0, 0, out var textMehsObject, out var textMeshPro);
 
             // Calculate the size of the rendered text
             var rect = Rect.CreateRect(
@@ -522,6 +524,8 @@ namespace RGSSUnity.RubyClasses
                 0,
                 (long)Math.Floor(textMeshPro.preferredWidth),
                 (long)Math.Floor(textMeshPro.preferredHeight));
+            
+            textMehsObject.SetActive(false);
             return rect;
         }
 
@@ -567,6 +571,7 @@ namespace RGSSUnity.RubyClasses
             var texture2d = data.Texture2D;
             var renderTexture = data.RenderTexture;
             textObject.SetActive(false);
+            RGSSLogger.Log("set text object to false");
 
             CommonStretchBlt(
                 textRenderTexture,
@@ -576,6 +581,7 @@ namespace RGSSUnity.RubyClasses
                 1.0f);
             RenderTextureToTexture2D(renderTexture, texture2d);
 
+            RenderTexture.ReleaseTemporary(textRenderTexture);
             TagDirty(data);
             return state.RbNil;
         }
@@ -678,6 +684,8 @@ namespace RGSSUnity.RubyClasses
             Object.Destroy(data.TextMeshProObject);
             data.RenderTexture = null;
             data.Texture2D = null;
+            data.TextMeshPro = null;
+            data.TextMeshProObject = null;
             data.Dirty = false;
             data.Tex2DDirty = false;
             DirtyBitmapDataSet_.Remove(data);

@@ -14,6 +14,7 @@ namespace RGSSUnity
 
         public RbState State { get; private set; }
         public RbClass UnityModule { get; private set; }
+        public RbClass UnityEditorModule { get; private set; }
         private RbContext context;
         private RbCompiler compiler;
 
@@ -25,6 +26,9 @@ namespace RGSSUnity
 
         [DllImport("libmruby_onig_regexp_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void mrb_mruby_onig_regexp_gem_init(IntPtr mrb);
+        
+        [DllImport("libmruby_zlib_ext_x64", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern void mrb_mruby_zlib_gem_init(IntPtr mrb);
 
         public void Initialize()
         {
@@ -35,6 +39,7 @@ namespace RGSSUnity
             mrb_mruby_marshal_c_gem_init(this.State.NativeHandler);
             mrb_mruby_onig_regexp_gem_init(this.State.NativeHandler);
             mrb_mruby_dir_glob_gem_init(this.State.NativeHandler);
+            mrb_mruby_zlib_gem_init(this.State.NativeHandler);
 
             this.UnityModule = this.State.DefineModule("Unity");
             this.State.DefineModule("RPG");
@@ -43,6 +48,41 @@ namespace RGSSUnity
             RbTypeRegisterHelper.Init(this.State, new[] { typeof(UnityModule).Assembly });
         }
 
+        public void InitializeForEditorScripts()
+        {
+            this.State = Ruby.Open();
+            this.context = this.State.NewCompileContext();
+            this.compiler = this.State.NewCompiler();
+
+            mrb_mruby_marshal_c_gem_init(this.State.NativeHandler);
+            mrb_mruby_onig_regexp_gem_init(this.State.NativeHandler);
+            mrb_mruby_dir_glob_gem_init(this.State.NativeHandler);
+            mrb_mruby_zlib_gem_init(this.State.NativeHandler);
+        }
+        
+        public RbValue LoadScriptInResourcesForUnityEditor(string fileName, out bool error)
+        {
+            var scriptAsset = Resources.Load<TextAsset>($"EditorScript/{fileName}");
+
+            error = false;
+            if (scriptAsset)
+            {
+                string scriptContent = scriptAsset.text;
+                Debug.Log($"Loaded resource script content: EditorScript/{fileName}");
+
+                this.context.SetFilename($"{fileName}.rb");
+                this.compiler.SetFilename($"{fileName}.rb");
+
+                var result = this.State.Protect((_, _, _) =>
+                    this.compiler.LoadString(scriptContent, this.context), ref error, out var func);
+
+                return result;
+            }
+
+            Debug.LogError("Failed to load script: " + fileName);
+            return this.State.RbNil;
+        }
+        
         public RbClass GetClassUnderUnityModule(string className) => this.UnityModule.GetConst(className).ToClass();
 
         public void LoadMainScript()

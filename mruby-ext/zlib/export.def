@@ -1,0 +1,4 @@
+LIBRARY libmruby_zlib_ext.dll
+EXPORTS
+    mrb_mruby_zlib_gem_init
+    mrb_mruby_zlib_gem_final

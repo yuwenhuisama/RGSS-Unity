@@ -246,6 +246,9 @@ namespace RGSSUnity.RubyClasses
             FrozenRenderTex_ = RenderTexture.GetTemporary(mainTexture.width, mainTexture.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             NewRenderTex_ = RenderTexture.GetTemporary(mainTexture.width, mainTexture.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             TransitionProcessTexture_ = RenderTexture.GetTemporary(Screen.width, Screen.height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            RubyClasses.Bitmap.CommonClear(FrozenRenderTex_);
+            RubyClasses.Bitmap.CommonClear(NewRenderTex_);
+            RubyClasses.Bitmap.CommonClear(TransitionProcessTexture_);
 
             // save current mainRenderTexture
             UnityEngine.Graphics.CopyTexture(mainTexture, FrozenRenderTex_);

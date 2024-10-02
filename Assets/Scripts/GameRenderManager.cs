@@ -88,12 +88,11 @@ namespace RGSSUnity
                 viewport.position = new Vector3(-(viewportTex.width / 2.0f), viewportTex.height / 2.0f, viewportData.Z);
                 viewport.Translate(new Vector3(-viewportData.Ox, viewportData.Oy, 0));
 
-                var renderers = new List<GameObject>();
+                var scriptObjects = new List<GameObject>();
 
                 for (int j = 0; j < spriteCnt; ++j)
                 {
                     var sprite = viewport.transform.GetChild(j);
-                    renderers.Add(sprite.gameObject);
 
                     if (sprite.gameObject.CompareTag("RGSSSprite"))
                     {
@@ -104,6 +103,7 @@ namespace RGSSUnity
                             continue;
                         }
 
+                        scriptObjects.Add(sprite.gameObject);
                         sprite.gameObject.SetActive(true);
                         sprite.localPosition = new Vector3(
                             data.X,
@@ -127,6 +127,7 @@ namespace RGSSUnity
                             continue;
                         }
 
+                        scriptObjects.Add(sprite.gameObject);
                         sprite.gameObject.SetActive(true);
                         sprite.localPosition = new Vector3(
                             0,
@@ -141,6 +142,13 @@ namespace RGSSUnity
                         {
                             continue;
                         }
+
+                        if (data.Openness == 0)
+                        {
+                            continue;
+                        }
+
+                        scriptObjects.Add(sprite.gameObject);
                         sprite.gameObject.SetActive(true);
 
                         var openness = data.Openness;
@@ -151,14 +159,12 @@ namespace RGSSUnity
                             data.Z);
                         RubyClasses.Window.Render(data);
                     }
-
-                    renderers.Add(sprite.gameObject);
-
-                    // render to viewport texture
-                    this.renderCamera.Render();
                 }
 
-                foreach (var s in renderers)
+                // render to viewport texture
+                this.renderCamera.Render(); 
+
+                foreach (var s in scriptObjects)
                 {
                     s.SetActive(false);
                 }

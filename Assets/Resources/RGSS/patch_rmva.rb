@@ -1,3 +1,4 @@
+# encoding: utf-8
 module SceneManager
   def self.run
     DataManager.init
@@ -93,7 +94,7 @@ module DataManager
     alias :old_make_filename :make_filename
 
     def make_filename(index)
-      filename old_make_filename(index)
+      filename = old_make_filename(index)
       __get_real_path__(filename)
     end
   end
@@ -163,13 +164,11 @@ module Cache
       unless filename.include?('\.')
         filename = filename + ".png"
       end
-      path = DataManager.__get_real_path__(folder_name,)
+      path = DataManager.__get_real_path__(folder_name)
       begin
-        msgbox "try to load bitmap from project"
         old_load_bitmap(path, filename, hue)
       rescue
         # try to load bitmap from rtp
-        msgbox "try to load bitmap from rtp"
         path = DataManager.__get_rtp_path__(folder_name)
         old_load_bitmap(path, filename, hue)
       end

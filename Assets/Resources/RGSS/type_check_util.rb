@@ -1,4 +1,5 @@
-﻿module TypeCheckUtil
+﻿# encoding: utf-8
+module TypeCheckUtil
   def check_type(value, type)
     TypeCheckUtil::check_type(value, type)
   end

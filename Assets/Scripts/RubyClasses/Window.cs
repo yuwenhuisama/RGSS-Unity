@@ -191,8 +191,6 @@ namespace RGSSUnity.RubyClasses
             var rw = width.ToIntUnchecked();
             var rh = height.ToIntUnchecked();
 
-            var rect = Rect.CreateRect(state, 0, 0, 0, 0);
-            
             var windowData = new WindowData(state)
             {
                 X = (float)rx,
@@ -200,7 +198,6 @@ namespace RGSSUnity.RubyClasses
                 Width = (int)rw,
                 Height = (int)rh,
                 Z = 100,
-                CursorRect = rect.GetRDataObject<RectData>(),
                 ArrowsVisible = true,
                 Active = true,
                 Visible = true,
@@ -266,7 +263,7 @@ namespace RGSSUnity.RubyClasses
             result["@windowskin"] = state.RbNil;
             result["@contents"] = state.RbNil;
             result["@viewport"] = state.RbNil;
-            result["@cursor_rect"] = rect;
+            result["@cursor_rect"] = state.RbNil;
             return result;
         }
 
@@ -379,7 +376,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue ViewportSet(RbState state, RbValue self, RbValue viewport)
         {
             var data = self.GetRDataObject<WindowData>();
-            var viewportData = self.GetRDataObject<ViewportData>();
+            var viewportData = viewport.GetRDataObject<ViewportData>();
 
             data.WindowBackgroundGameObject.transform.SetParent(viewportData.ViewportObject.transform);
 
