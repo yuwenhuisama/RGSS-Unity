@@ -571,7 +571,6 @@ namespace RGSSUnity.RubyClasses
             var texture2d = data.Texture2D;
             var renderTexture = data.RenderTexture;
             textObject.SetActive(false);
-            RGSSLogger.Log("set text object to false");
 
             CommonStretchBlt(
                 textRenderTexture,

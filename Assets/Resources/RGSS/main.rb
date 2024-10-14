@@ -60,6 +60,7 @@ begin
   require 'plane'
   require 'window'
   require 'table'
+  require 'tilemap'
   require 'rgss_error'
   require 'rgss_reset'
 

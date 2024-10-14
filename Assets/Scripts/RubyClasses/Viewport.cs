@@ -259,7 +259,7 @@ namespace RGSSUnity.RubyClasses
         public static RbValue SetOy(RbState state, RbValue self, RbValue oy)
         {
             var data = self.GetRDataObject<ViewportData>();
-            data.Ox = oy.ToIntUnchecked();
+            data.Oy = oy.ToIntUnchecked();
             return state.RbNil;
         }
 
